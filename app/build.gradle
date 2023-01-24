@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace 'com.unipi.adarmis.smartalert'
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.unipi.adarmis.smartalert"
