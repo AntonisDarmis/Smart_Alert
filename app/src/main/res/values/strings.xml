@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Smart Alert</string>
+    <string-array name="types">
+        <item>Fire</item>
+        <item>Typhoon</item>
+        <item>Flood</item>
+        <item>Earthquake</item>
+        <item>Tsunami</item>
+        <item>Volcano erruption</item>
+    </string-array>
 </resources>
