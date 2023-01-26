@@ -7,6 +7,7 @@ import androidx.core.app.ActivityCompat;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -14,6 +15,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -34,6 +36,8 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -49,6 +53,7 @@ public class SubmitIncident extends AppCompatActivity implements View.OnClickLis
 
     LocationManager locationManager;
     RequestQueue mRequestQueue;
+    byte[] imgByteArray = null;
 
 
     @Override
@@ -96,7 +101,7 @@ public class SubmitIncident extends AppCompatActivity implements View.OnClickLis
         else
         {
             //call post incident
-            String url = "http://192.168.2.2:8080/api/incidents/";
+            String url = "http://192.168.1.14:8080/api/incidents/";
 
             mRequestQueue.add(postIncident(url));
 
@@ -124,8 +129,20 @@ public class SubmitIncident extends AppCompatActivity implements View.OnClickLis
         {
             Uri selectedImage = data.getData();
             imagePath.setText(selectedImage.getPath());
-
+            Bitmap bitmap = null;
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            imgByteArray =  getBitmapAsByteArray(bitmap);
         }
+    }
+
+    public static byte[] getBitmapAsByteArray(Bitmap bitmap) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
+        return outputStream.toByteArray();
     }
 
     @Override
@@ -152,6 +169,7 @@ public class SubmitIncident extends AppCompatActivity implements View.OnClickLis
             incident_data.put("longitude",Double.parseDouble(longit));
             incident_data.put("type",category.toUpperCase());
             incident_data.put("comment",comm);
+            incident_data.put("image", Base64.encodeToString(imgByteArray,0));
             //incident_data.put(); IMAGE PATH
         } catch(JSONException e) {
             e.printStackTrace();
