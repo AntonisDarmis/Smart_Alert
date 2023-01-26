@@ -95,13 +95,14 @@ public class SubmitIncident extends AppCompatActivity implements View.OnClickLis
         else
         {
             //call post incident
-            String url = "http://192.168.1.14:8080/api/incidents/";
+            String url = "http://192.168.2.2:8080/api/incidents/";
 
             mRequestQueue.add(postIncident(url));
 
 
             //Intent intent = new Intent(this,UserPage.class);
             //startActivity(intent);
+
 
 
         }

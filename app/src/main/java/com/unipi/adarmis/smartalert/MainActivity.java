@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         else
         {
-            String url = "http://192.168.1.14:8080/api/users/login";
+            String url = "http://192.168.2.2:8080/api/users/login";
             JsonObjectRequest loginRequest = createLoginRequest(url,username,password);
             mRequestQueue.add(loginRequest);
         }
