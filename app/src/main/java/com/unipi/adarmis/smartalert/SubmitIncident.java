@@ -35,6 +35,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class SubmitIncident extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener, LocationListener {
     Button submitButton, selectImage;
@@ -145,7 +146,7 @@ public class SubmitIncident extends AppCompatActivity implements View.OnClickLis
 
         JSONObject incident_data = new JSONObject();
         try {
-            incident_data.put("date", LocalDate.now());
+            incident_data.put("date", LocalDateTime.now());
             incident_data.put("latitude",Double.parseDouble(lat));
             incident_data.put("longitude",Double.parseDouble(longit));
             incident_data.put("type",category.toUpperCase());
