@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "94438652952",
+    "firebase_url": "https://smartalert-8da58-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "smartalert-8da58",
+    "storage_bucket": "smartalert-8da58.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:94438652952:android:58f1a993b90fa4903d176d",
+        "android_client_info": {
+          "package_name": "com.unipi.adarmis.smartalert"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "94438652952-bnbokdqkdabtk2h2baqooce3oogjoaci.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAp498jaDIBt8tIJrgyxf6kUyaRsh2fknA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "94438652952-bnbokdqkdabtk2h2baqooce3oogjoaci.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
