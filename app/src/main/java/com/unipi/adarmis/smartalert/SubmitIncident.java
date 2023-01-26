@@ -26,12 +26,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -52,7 +46,7 @@ public class SubmitIncident extends AppCompatActivity implements View.OnClickLis
     private EditText comment;
 
     LocationManager locationManager;
-    RequestQueue mRequestQueue;
+
     byte[] imgByteArray = null;
 
 
@@ -72,7 +66,6 @@ public class SubmitIncident extends AppCompatActivity implements View.OnClickLis
         }
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
 
-        mRequestQueue = Volley.newRequestQueue(getApplicationContext());
         setContentView(R.layout.activity_submit_incident);
         imagePath = findViewById(R.id.imgPath);
         submitButton = findViewById(R.id.submitIncident);
@@ -100,14 +93,7 @@ public class SubmitIncident extends AppCompatActivity implements View.OnClickLis
         }
         else
         {
-            //call post incident
-            String url = "http://192.168.1.14:8080/api/incidents/";
 
-            mRequestQueue.add(postIncident(url));
-
-
-            //Intent intent = new Intent(this,UserPage.class);
-            //startActivity(intent);
 
 
 
@@ -155,55 +141,6 @@ public class SubmitIncident extends AppCompatActivity implements View.OnClickLis
         category = "Earthquake";
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    JsonObjectRequest postIncident(String url) { //IMAGE BLOB???????
-        String longit = longitude.getText().toString();
-        String lat = latitude.getText().toString();
-        String comm = comment.getText().toString();
-        String imageResult = imagePath.getText().toString(); // make into blob and save to db??????????
-
-        JSONObject incident_data = new JSONObject();
-        try {
-            incident_data.put("date", LocalDateTime.now());
-            incident_data.put("latitude",Double.parseDouble(lat));
-            incident_data.put("longitude",Double.parseDouble(longit));
-            incident_data.put("type",category.toUpperCase());
-            incident_data.put("comment",comm);
-            incident_data.put("image", Base64.encodeToString(imgByteArray,0));
-            //incident_data.put(); IMAGE PATH
-        } catch(JSONException e) {
-            e.printStackTrace();
-        }
-        return new JsonObjectRequest(
-                Request.Method.POST,
-                url,
-                incident_data,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            if(response.getInt("statusCode")==201) { //http status CREATED
-                                Toast.makeText(getApplicationContext(), "Successful incident submission", Toast.LENGTH_LONG).show();
-                                finish();
-                                startActivity(new Intent(SubmitIncident.this, UserPage.class));
-                            } else {
-                                //toast error msg
-                                Toast.makeText(getApplicationContext(), "Error submitting incident, please try again!", Toast.LENGTH_LONG).show();
-                            }
-                        } catch (JSONException e) {
-                            Toast.makeText(getApplicationContext(), "Error submitting incident, please try again!", Toast.LENGTH_LONG).show();
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getApplicationContext(), "Error submitting incident, please try again!", Toast.LENGTH_LONG).show();
-                        error.printStackTrace();
-                    }
-                }
-        );
-    }
 
 }
+

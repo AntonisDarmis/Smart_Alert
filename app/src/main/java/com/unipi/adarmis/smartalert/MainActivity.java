@@ -17,12 +17,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
+
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,15 +27,27 @@ import org.w3c.dom.Text;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, LocationListener {
     Button loginButton;
     LocationManager locationManager;
-    private RequestQueue mRequestQueue;
+    TextView register;
+    private FirebaseAuth mAuth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mAuth = FirebaseAuth.getInstance();
+
         loginButton = findViewById(R.id.loginButton);
         loginButton.setOnClickListener(this);
-        mRequestQueue = Volley.newRequestQueue(getApplicationContext());
 
+        register = findViewById(R.id.openRegister);
+        register.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this,Register.class);
+                startActivity(intent);
+                finish();
+            }
+        });
 
         //set location manager
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -64,9 +72,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         else
         {
-            String url = "http://192.168.1.14:8080/api/users/login";
-            JsonObjectRequest loginRequest = createLoginRequest(url,username,password);
-            mRequestQueue.add(loginRequest);
+
         }
 
     }
@@ -92,50 +98,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    private JsonObjectRequest createLoginRequest(String url, String username, String password) {
-        JSONObject login_data = new JSONObject();
-        try {
-            login_data.put("username",username);
-            login_data.put("password",password);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                Request.Method.POST,
-                url,
-                login_data,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            Log.e("Rest response:",response.toString());
 
-                            if(response.getInt("statusCode")==200) {
-                                JSONObject user = response.getJSONObject("data").getJSONObject("user");
-                                String role = user.getString("role");
-                                if (role.equals("USER")) {
-                                    Toast.makeText(getApplicationContext(), "Επιτυχής σύνδεση!", Toast.LENGTH_LONG).show();
-                                    Intent intent = new Intent(MainActivity.this,UserPage.class);
-                                    startActivity(intent);
-                                }
-                            } else {
-                                Toast.makeText(getApplicationContext(), "Λάθος στοιχεία!", Toast.LENGTH_LONG).show();
-                            }
-                        } catch (JSONException e) {
-                            Toast.makeText(getApplicationContext(), "Internal server error. Please try again.", Toast.LENGTH_LONG).show();
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getApplicationContext(), "Internal server error. Please try again.", Toast.LENGTH_LONG).show();
-                        error.printStackTrace();
-                    }
-                }
-        );
-        return jsonObjectRequest;
-    }
 
 }
