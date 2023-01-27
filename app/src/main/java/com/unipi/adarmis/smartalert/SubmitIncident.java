@@ -34,6 +34,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -129,7 +130,7 @@ public class SubmitIncident extends AppCompatActivity implements View.OnClickLis
             //category
 
             Map<String,Object> incident = new HashMap<>();
-            incident.put("timestamp",LocalDateTime.now());
+            incident.put("timestamp", Timestamp.now());
             incident.put("longitude",x);
             incident.put("latitude",y);
             incident.put("type",category);
