@@ -49,6 +49,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -130,7 +131,8 @@ public class SubmitIncident extends AppCompatActivity implements View.OnClickLis
             //category
 
             Map<String,Object> incident = new HashMap<>();
-            incident.put("timestamp", Timestamp.now());
+            String timestamp = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss").format(LocalDateTime.now());
+            incident.put("timestamp", timestamp);
             incident.put("longitude",x);
             incident.put("latitude",y);
             incident.put("type",category);

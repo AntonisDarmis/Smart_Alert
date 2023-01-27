@@ -18,8 +18,15 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.sql.Time;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class Incidents extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     private FirebaseFirestore db;
@@ -66,14 +73,22 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 if(task.isSuccessful())
                                 {
-                                    for(QueryDocumentSnapshot document:task.getResult())
-                                    {
 
-                                        if(true){
-                                            Double longitude = document.getDouble("longitude");
-                                            Double latitude = document.getDouble("latitude");
+                                    for(QueryDocumentSnapshot document:task.getResult()) {
+                                        String time = document.getString("timestamp");
+                                        String dayHours = time.substring(0, 13);
+
+                                        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                                        Date date = new Date();
+                                        String formatted = formatter.format(date);
+                                        String now = formatted.substring(0, 13);
+                                        if(dayHours.subSequence(3,10).equals(now.subSequence(3,10)) ) {
+                                            if (true) {
+                                                Double longitude = document.getDouble("longitude");
+                                                Double latitude = document.getDouble("latitude");
 
 
+                                            }
                                         }
                                     }
                                 }
@@ -93,5 +108,10 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
         category = "Earthquake";
+    }
+
+    public static long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {
+        long diffInMillies = date2.getTime() - date1.getTime();
+        return timeUnit.convert(diffInMillies,TimeUnit.MILLISECONDS);
     }
 }
