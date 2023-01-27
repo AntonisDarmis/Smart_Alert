@@ -25,12 +25,12 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView8">
+        app:layout_constraintTop_toBottomOf="@+id/textView8"
+        app:layout_constraintVertical_bias="0.0">
 
         <TableLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            >
+            android:layout_height="wrap_content">
 
             <TableRow
                 android:layout_width="match_parent"
@@ -42,9 +42,9 @@
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:background="@drawable/border"
                     android:padding="3dp"
                     android:text="Type"
-                    android:background="@drawable/border"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
                 <TextView
@@ -52,10 +52,10 @@
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:background="@drawable/border"
                     android:gravity="left"
                     android:padding="3dp"
                     android:text="Date"
-                    android:background="@drawable/border"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
                 <TextView
@@ -63,10 +63,10 @@
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:background="@drawable/border"
                     android:gravity="left"
                     android:padding="3dp"
                     android:text="Location"
-                    android:background="@drawable/border"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
                 <TextView
@@ -74,10 +74,10 @@
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:background="@drawable/border"
                     android:gravity="left"
                     android:padding="3dp"
                     android:text="Danger score"
-                    android:background="@drawable/border"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
             </TableRow>
 

@@ -1,10 +1,13 @@
 package com.unipi.adarmis.smartalert;
 
+import static android.content.ContentValues.TAG;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -18,14 +21,25 @@ import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,6 +48,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SubmitIncident extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener, LocationListener {
     Button submitButton, selectImage;
@@ -45,7 +61,12 @@ public class SubmitIncident extends AppCompatActivity implements View.OnClickLis
     private TextView latitude;
     private EditText comment;
 
+    private ProgressBar mProgressBar;
+    private Uri selectedImage = null;
+
     LocationManager locationManager;
+    FirebaseFirestore db;
+    StorageReference storageReference;
 
     byte[] imgByteArray = null;
 
@@ -75,11 +96,15 @@ public class SubmitIncident extends AppCompatActivity implements View.OnClickLis
         longitude = findViewById(R.id.longitude);
         latitude = findViewById(R.id.latitude);
         comment = findViewById(R.id.comment);
+        mProgressBar = findViewById(R.id.progressBar);
         Spinner spinner = findViewById(R.id.incidentType);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,R.array.types,android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
+
+        db = FirebaseFirestore.getInstance();
+        storageReference = FirebaseStorage.getInstance().getReference("images");
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -91,18 +116,80 @@ public class SubmitIncident extends AppCompatActivity implements View.OnClickLis
             startActivityForResult(intent,3);
 
         }
-        else
+        else if(view.getId() == R.id.submitIncident)
         {
+            Float x = Float.parseFloat(longitude.getText().toString());
+            Float y = Float.parseFloat(latitude.getText().toString());
+            String comm = comment.getText().toString();
+            //category
 
+            Map<String,Object> incident = new HashMap<>();
+            incident.put("timestamp",LocalDateTime.now());
+            incident.put("longitude",x);
+            incident.put("latitude",y);
+            incident.put("type",category);
+            incident.put("comment",comm);
+            //incident.put("image",null);
 
+            db.collection("incidents").add(incident)
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            Log.d(TAG, "Incident successfully written!");
+                            Toast.makeText(SubmitIncident.this, "Incident successfully reported",
+                                    Toast.LENGTH_SHORT).show();
+                            uploadFile(documentReference.getId().toString());
+                            Intent intent = new Intent(SubmitIncident.this,UserPage.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error writing document", e);
+                            Toast.makeText(SubmitIncident.this, "An error occurred, please retry.",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
 
+    }
 
+    private String getFileExtension(Uri uri) {
+        ContentResolver cr = getContentResolver();
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        return mime.getExtensionFromMimeType(cr.getType(uri));
+    }
+
+    private void uploadFile(String docId) {
+        if(selectedImage!=null) {
+            StorageReference fileReference = storageReference.child(docId+"."+getFileExtension(selectedImage));
+            fileReference.putFile(selectedImage)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Toast.makeText(SubmitIncident.this,"Image uploaded.",Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(SubmitIncident.this,"Image upload failed.",Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
+                            double progress = (100.0 * snapshot.getBytesTransferred() / snapshot.getTotalByteCount());
+                            mProgressBar.setProgress((int)progress);
+                        }
+                    });
         }
     }
 
     @Override
     public void onLocationChanged(@NonNull Location location) {
-        Log.v("TAG","In location changed");
         longitude.setText(Double.toString(location.getLongitude()));
         latitude.setText(Double.toString(location.getLatitude()));
     }
@@ -113,8 +200,8 @@ public class SubmitIncident extends AppCompatActivity implements View.OnClickLis
         super.onActivityResult(requestCode,resultCode,data);
         if(resultCode == RESULT_OK && data != null)
         {
-            Uri selectedImage = data.getData();
-            imagePath.setText(selectedImage.getPath());
+            selectedImage = data.getData();
+            imagePath.setText(selectedImage.getLastPathSegment());
             Bitmap bitmap = null;
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
