@@ -12,10 +12,14 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.common.collect.Table;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -37,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 public class Incidents extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     private FirebaseFirestore db;
     private String category;
+    List<Location> centers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +54,6 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
 
-        computeScores2();
     }
 
     @Override
@@ -63,44 +67,9 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
 
 
 
-
-
-    public void computeScores() {
-        //function to compute scores based on hierarchical search
-        switch(category)
-        {
-            case "Fire":
-            {
-                db.collection("incidents")
-                        .whereEqualTo("type",category)
-                        .get()
-                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if(task.isSuccessful())
-                                {
-                                    for(QueryDocumentSnapshot document:task.getResult())
-                                    {
-
-                                        if(true){
-                                            Double longitude = document.getDouble("longitude");
-                                            Double latitude = document.getDouble("latitude");
-
-
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                break;
-            }
-        }
-
-    }
-
-    public void computeScores2() {
+    public void computeCenters() {
         db.collection("incidents")
-                .whereEqualTo("type","Fire")
+                .whereEqualTo("type",category)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -121,15 +90,43 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
                                     //String comment = document.getString("comment");
                                    // Toast.makeText(Incidents.this, comment, Toast.LENGTH_SHORT).show();
                                 }
-                               // Ranking.ranking(locations,10000);
-
                             }
+                            centers =  Ranking.ranking(locations,10000);
 
                         } else {
                             Toast.makeText(Incidents.this,"No incidents fetched.",Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
+    }
+
+    public void fillTable()
+    {
+        if(centers != null)
+        {
+            TableLayout table = findViewById(R.id.table);
+            for(Location location: centers)
+            {
+                TableRow tableRow = new TableRow(this);
+                tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+                TextView x= new TextView(this);
+                TextView y = new TextView(this);
+                Double longitude  = location.getLongitude();
+                Double latitude = location.getLatitude();
+                x.setText(""+longitude.toString().substring(0,5));
+                y.setText(""+latitude.toString().substring(0,5));
+                tableRow.addView(x);
+                tableRow.addView(y);
+                table.addView(tableRow);
+                //also set on click listener...
+
+
+            }
+        }
+        else
+        {
+            Toast.makeText(Incidents.this,"No incidents available for selected category.",Toast.LENGTH_SHORT).show();
+        }
     }
 
     public static long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {
@@ -140,6 +137,9 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         category = parent.getItemAtPosition(position).toString();
+        //compute centers for selected category
+        computeCenters();
+        fillTable();
     }
 
     @Override

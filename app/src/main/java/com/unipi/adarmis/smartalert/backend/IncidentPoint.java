@@ -4,11 +4,12 @@ import java.util.List;
 
 public class IncidentPoint
 {
-
+    int point;
     List<Integer> neighbours;
 
-    IncidentPoint(List<Integer>neighbours)
+    IncidentPoint(List<Integer>neighbours,int point)
     {
+        this.point = point;
         this.neighbours = neighbours;
     }
 
