@@ -1,14 +1,17 @@
 package com.unipi.adarmis.smartalert;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -18,13 +21,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.sql.Time;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -43,7 +47,7 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
 
-
+        computeScores2();
     }
 
     @Override
@@ -73,22 +77,14 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 if(task.isSuccessful())
                                 {
+                                    for(QueryDocumentSnapshot document:task.getResult())
+                                    {
 
-                                    for(QueryDocumentSnapshot document:task.getResult()) {
-                                        String time = document.getString("timestamp");
-                                        String dayHours = time.substring(0, 13);
-
-                                        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-                                        Date date = new Date();
-                                        String formatted = formatter.format(date);
-                                        String now = formatted.substring(0, 13);
-                                        if(dayHours.subSequence(3,10).equals(now.subSequence(3,10)) ) {
-                                            if (true) {
-                                                Double longitude = document.getDouble("longitude");
-                                                Double latitude = document.getDouble("latitude");
+                                        if(true){
+                                            Double longitude = document.getDouble("longitude");
+                                            Double latitude = document.getDouble("latitude");
 
 
-                                            }
                                         }
                                     }
                                 }
@@ -100,6 +96,40 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
 
     }
 
+    public void computeScores2() {
+        db.collection("incidents")
+                .whereEqualTo("type","Fire")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @RequiresApi(api = Build.VERSION_CODES.O)
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()) {
+                            for(QueryDocumentSnapshot document : task.getResult()) {
+                                Date docDate = document.getTimestamp("timestamp").toDate();
+                                Date today = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
+                                if(getDateDiff(docDate,today,TimeUnit.DAYS)<1) {
+                                    //Double longitude = document.getDouble("longitude");
+                                    //Double latitude = document.getDouble("latitude");
+                                    //String comment = document.getString("comment");
+                                    //Toast.makeText(Incidents.this, comment, Toast.LENGTH_SHORT).show();
+                                }
+                                //TO SORT BY DATE USE GET DATE NOT GET DAY (THIS IS MONDAY,TUESDAY etc)
+                                Toast.makeText(Incidents.this,String.valueOf(docDate.getDate()),Toast.LENGTH_SHORT).show();
+                            }
+
+                        } else {
+                            Toast.makeText(Incidents.this,"No incidents fetched.",Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+    public static long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {
+        long diffInMillies = date2.getTime() - date1.getTime();
+        return timeUnit.convert(diffInMillies,TimeUnit.MILLISECONDS);
+    }
+
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         category = parent.getItemAtPosition(position).toString();
@@ -108,10 +138,5 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
         category = "Earthquake";
-    }
-
-    public static long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {
-        long diffInMillies = date2.getTime() - date1.getTime();
-        return timeUnit.convert(diffInMillies,TimeUnit.MILLISECONDS);
     }
 }

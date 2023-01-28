@@ -131,8 +131,9 @@ public class SubmitIncident extends AppCompatActivity implements View.OnClickLis
             //category
 
             Map<String,Object> incident = new HashMap<>();
-            String timestamp = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss").format(LocalDateTime.now());
-            incident.put("timestamp", timestamp);
+            //String timestamp = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss").format(LocalDateTime.now());
+            //incident.put("timestamp", timestamp); //PANA VERSION
+            incident.put("timestamp",Timestamp.now());
             incident.put("longitude",x);
             incident.put("latitude",y);
             incident.put("type",category);
