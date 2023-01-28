@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -20,6 +21,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.unipi.adarmis.smartalert.backend.Ranking;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -105,17 +107,22 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if(task.isSuccessful()) {
+                            List<Location> locations = new ArrayList<>();
                             for(QueryDocumentSnapshot document : task.getResult()) {
                                 Date docDate = document.getTimestamp("timestamp").toDate();
                                 Date today = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
                                 if(getDateDiff(docDate,today,TimeUnit.DAYS)<1) {
-                                    //Double longitude = document.getDouble("longitude");
-                                    //Double latitude = document.getDouble("latitude");
+                                    Double longitude = document.getDouble("longitude");
+                                    Double latitude = document.getDouble("latitude");
+                                    Location loc = new Location("location");
+                                    loc.setLongitude(longitude);
+                                    loc.setLatitude(latitude);
+                                    locations.add(loc);
                                     //String comment = document.getString("comment");
-                                    //Toast.makeText(Incidents.this, comment, Toast.LENGTH_SHORT).show();
+                                   // Toast.makeText(Incidents.this, comment, Toast.LENGTH_SHORT).show();
                                 }
-                                //TO SORT BY DATE USE GET DATE NOT GET DAY (THIS IS MONDAY,TUESDAY etc)
-                                Toast.makeText(Incidents.this,String.valueOf(docDate.getDate()),Toast.LENGTH_SHORT).show();
+                               // Ranking.ranking(locations,10000);
+
                             }
 
                         } else {

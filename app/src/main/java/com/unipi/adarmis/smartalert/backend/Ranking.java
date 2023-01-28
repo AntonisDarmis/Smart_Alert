@@ -1,6 +1,7 @@
 package com.unipi.adarmis.smartalert.backend;
 
 import android.location.Location;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,8 @@ public class Ranking {
                 }
             }
             incidentPoints.add(new IncidentPoint(neighbours));
+            Log.d("Incidents", String.valueOf(incidentPoints.get(0)));
+            Log.d("Incidents",String.valueOf(incidentPoints.get(2)));
         }
 
     }
