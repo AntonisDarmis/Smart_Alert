@@ -123,10 +123,10 @@ public class SubmitIncident extends AppCompatActivity implements View.OnClickLis
             Double x = Double.parseDouble(longitude.getText().toString());
             Double y = Double.parseDouble(latitude.getText().toString());
             //convert to cartesian coordinates
-            Double lonRad = Math.PI * x / 180;
-            Double latRad = Math.PI * y / 180;
-            x = 6371 * Math.cos(latRad) * Math.cos(lonRad);
-            y = 6371 * Math.cos(latRad) * Math.sin(lonRad);
+           // Double lonRad = Math.PI * x / 180;
+           // Double latRad = Math.PI * y / 180;
+            // x = 6371 * Math.cos(latRad) * Math.cos(lonRad);
+           // y = 6371 * Math.cos(latRad) * Math.sin(lonRad);
             String comm = comment.getText().toString();
             //category
 
