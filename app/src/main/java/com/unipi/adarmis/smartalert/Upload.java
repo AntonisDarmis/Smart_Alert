@@ -1,18 +1,18 @@
 package com.unipi.adarmis.smartalert;
 
-import java.util.Date;
-
 public class Upload {
     private String mName;
-
-    private Date date;
     private String mImageUrl;
 
     public Upload() {
         //empty constructor needed
     }
 
-    public Upload(String name, Date date,String imageUrl) {
+    public Upload(String name, String imageUrl) {
+        if (name.trim().equals("")) {
+            name = "No Name";
+        }
+
         mName = name;
         mImageUrl = imageUrl;
     }
@@ -24,12 +24,6 @@ public class Upload {
     public void setName(String name) {
         mName = name;
     }
-
-    public void setDate(Date date) {
-        this.date=date;
-    }
-
-    public Date getDate() {return date;}
 
     public String getImageUrl() {
         return mImageUrl;

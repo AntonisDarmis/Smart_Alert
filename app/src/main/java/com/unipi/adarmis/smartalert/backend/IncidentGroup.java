@@ -120,6 +120,10 @@ public class IncidentGroup implements Parcelable {
         return center;
     }
 
+    public List<IncidentPoint> getIncidents() {
+        return incidents;
+    }
+
     public Location getCenter() {
         return center;
     }
