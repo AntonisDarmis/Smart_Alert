@@ -15,26 +15,28 @@ import java.util.List;
 
 public class Ranking {
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public static List<Location> ranking(List<Location> locations, int radius)
+    public static List<IncidentGroup> rank(List<IncidentPoint> points, int radius)
     {
-        if(locations.isEmpty())
+        if(points.isEmpty())
         {
             return new ArrayList<>();
         }
-        int size = locations.size();
+
+        //compute all pairwise distances
+        int size = points.size();
         double [][] distances = new double[size][size];
         for(int i=0;i<size;i++)
         {
             for(int j=0;j<size;j++)
             {
                 //compute the distance in meters
-                distances[i][j] = locations.get(i).distanceTo(locations.get(j));
+                distances[i][j] = points.get(i).getLocation().distanceTo(points.get(j).getLocation());
             }
         }
         //radius in meters to search closest incidents
 
-        int[] scores = new int[size];
-        List<IncidentPoint> incidentPoints = new ArrayList<IncidentPoint>();
+        //int[] scores = new int[size];
+        //List<IncidentPoint> incidentPoints = new ArrayList<IncidentPoint>();
         for(int i=0;i<size;i++)
         {
             List<Integer> neighbours = new ArrayList<>();
@@ -47,26 +49,41 @@ public class Ranking {
                     neighbours.add(j);
                 }
             }
-            incidentPoints.add(new IncidentPoint(neighbours,i));
+            //update point's neighbours
+            points.get(i).setNeighbours(neighbours);
         }
-        List<IncidentPoint> groups = new ArrayList<>();
-        while(!NoMorePoints(incidentPoints))
+
+        //keep largest groups in greedy manner
+        //List<IncidentPoint> groups = new ArrayList<>();
+        List<IncidentGroup> groups = new ArrayList<>();
+        while(!NoMorePoints(points))    //while unassigned points exist
         {
-            IncidentPoint currMax = Collections.max(incidentPoints, Comparator.comparing(c -> c.getNeighbours().size()));
-            groups.add(currMax);
-            incidentPoints.remove(currMax);
-            for (IncidentPoint point : incidentPoints) {
-                for (Integer i : currMax.getNeighbours()) {
+            //get point with the most neighbours
+            IncidentPoint currMax = Collections.max(points, Comparator.comparing(c -> c.getNeighbours().size()));
+
+            //add these neighbours to a group (neighbours include the point itself
+            List<IncidentPoint> groupPoints = new ArrayList<>();
+            for (Integer i : currMax.getNeighbours()) {
+                groupPoints.add(points.get(i));
+            }
+            groups.add(new IncidentGroup(groupPoints)); //add group to list of groups
+
+            //remove point with most neighbours from list of points
+            points.remove(currMax);
+            for (IncidentPoint point : points) {    //for each remaining point
+                for (Integer i : currMax.getNeighbours()) { //remove neighbours that have already been assigned a group
                     point.getNeighbours().remove(i);
                 }
             }
         }
-        Log.d("Groups",String.valueOf(groups.size()));
-        List<Location> centers =  computeCenters(groups,locations);
-        Log.d("Longitude",String.valueOf(centers.get(0).getLongitude()));
-        Log.d("Latitude",String.valueOf(centers.get(0).getLatitude()));
-        return centers;
 
+        //print all centers
+        for(IncidentGroup g : groups) {
+            String cntr = "("+String.valueOf(g.getCenter().getLongitude())+", "+String.valueOf(g.getCenter().getLatitude())+")";
+            Log.d("Center",cntr);
+        }
+
+        return groups;
     }
 
 
