@@ -165,8 +165,11 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
                         @Override
                         public void onClick(View v) {
                             //MAKE INCIDENTGROUP PARCELABLE
-                            //Intent intent = new Intent(Incidents.this,IncidentDetails.class);
-                            //intent.putExtras("group",g);
+                            Bundle extras = new Bundle();
+                            extras.putParcelable("group",g);
+                            Intent intent = new Intent(Incidents.this,IncidentDetails.class);
+                            intent.putExtras(extras);
+                            startActivity(intent);
                         }
                     });
                     table.addView(tableRow);
