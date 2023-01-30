@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         //request permissions
         requestGPSPermission();
-        addLocationListener();
+       // addLocationListener();
     }
 
     @Override
@@ -200,39 +200,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    private void addLocationListener() {
-        triggerService = new Thread(new Runnable() {
-            @RequiresApi(api = Build.VERSION_CODES.M)
-            public void run() {
-                try {
-                    Looper.prepare();//Initialise the current thread as a looper.
 
-                    Criteria c = new Criteria();
-                    c.setAccuracy(Criteria.ACCURACY_COARSE);
-
-                    final String PROVIDER = locationManager.getBestProvider(c, true);
-
-                    if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        // TODO: Consider calling
-                        //    ActivityCompat#requestPermissions
-                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION}, 123);
-                        // here to request the missing permissions, and then overriding
-                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                        //                                          int[] grantResults)
-                        // to handle the case where the user grants the permission. See the documentation
-                        // for ActivityCompat#requestPermissions for more details.
-                        return;
-                    }
-                    //lm.requestLocationUpdates(PROVIDER, 600000, 0, MainActivity.this);
-                    Log.d("LOC_SERVICE", "Service RUNNING!");
-                    Looper.loop();
-                }catch(Exception ex){
-                    ex.printStackTrace();
-                }
-            }
-        }, "LocationThread");
-        triggerService.start();
-    }
 
 
 
