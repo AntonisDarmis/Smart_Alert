@@ -6,6 +6,7 @@ import android.location.Location;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -100,10 +101,10 @@ public class IncidentGroup implements Parcelable {
     }
 
     private Location computeCenter() {
-
         List<Location> locations = new ArrayList<>();
         for(IncidentPoint p : incidents) {
             locations.add(p.getLocation());
+            Log.d("Location point",p.getLocation().toString());
         }
 
         float longit = 0;

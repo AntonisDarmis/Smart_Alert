@@ -53,7 +53,7 @@ import java.util.concurrent.TimeUnit;
 public class Incidents extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     private FirebaseFirestore db;
     private String category;
-
+    private boolean display = true;
     private List<IncidentGroup> groups;
 
     @Override
@@ -67,6 +67,7 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
+        Log.d("Event","Item select");
 
         db.collection("incidents")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -76,6 +77,7 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
                         if (error != null) {
                             Log.w(TAG, "Listen failed.", error);
                         } else {
+                            Log.d("Event",value.getQuery().toString());
                             List<IncidentPoint> points = new ArrayList<>();
                             int index = 0;
                             for(QueryDocumentSnapshot d : value) {
@@ -95,6 +97,7 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
                                         IncidentPoint point = new IncidentPoint(incType,loc,index,comment,id,docDate);
                                         points.add(point);
                                         index++;
+
                                     }
                                 }
                             }
@@ -127,11 +130,13 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
         db.collection("incidents")
                 .whereEqualTo("type",category)
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>()
+                {
                     @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if(task.isSuccessful()) {
+                            Log.d("Event","Completed query");
                             //List<Location> locations = new ArrayList<>();
                             List<IncidentPoint> points = new ArrayList<>();
                             int index = 0;
@@ -241,8 +246,12 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
         //category = parent.getItemAtPosition(position).toString();
         category = parent.getSelectedItem().toString();
         //compute centers for selected category
-        clearTable();
-        computeCenters();
+        Log.d("Event","item select");
+        if(!display) {
+            clearTable();
+            computeCenters();
+        }
+        display = false;
     }
 
     @Override
