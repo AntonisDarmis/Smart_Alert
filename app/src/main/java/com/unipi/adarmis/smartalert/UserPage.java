@@ -18,8 +18,14 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.auth.User;
 
 public class UserPage extends AppCompatActivity implements View.OnClickListener, LocationListener {
@@ -27,6 +33,9 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
     LocationManager locationManager;
     Thread triggerService;
     Double longitude,latitude;
+
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
 
 
     @Override
@@ -41,6 +50,10 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_index_page);
+
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+
         submitButton = findViewById(R.id.submitButton);
         submitButton.setOnClickListener(this);
 
@@ -66,6 +79,35 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
     {
         longitude = location.getLongitude();
         latitude = location.getLatitude();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        String cur_uid = currentUser.getUid();
+        DocumentReference docRef = db.collection("users").document(cur_uid);
+        docRef.update("longitude",longitude)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(UserPage.this,"Failed",Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        docRef.update("latitude",latitude)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(UserPage.this,"Failed",Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
 
