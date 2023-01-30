@@ -3,16 +3,22 @@ package com.unipi.adarmis.smartalert;
 import static android.content.ContentValues.TAG;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+
 import android.Manifest;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -42,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button loginButton;
     LocationManager locationManager;
     TextView register;
+    Thread triggerService;
+    Double longitude,latitude;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
@@ -51,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         db = FirebaseFirestore.getInstance();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null){
+        if (currentUser != null) {
             String cur_uid = currentUser.getUid();
             DocumentReference docRef = db.collection("users").document(cur_uid);
             docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -61,12 +69,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         DocumentSnapshot document = task.getResult();
                         if (document.exists()) {
                             Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                            if(Objects.requireNonNull(document.get("role")).toString().equals("ADMIN")) {
-                                Intent intent = new Intent(MainActivity.this,Incidents.class);
+                            if (Objects.requireNonNull(document.get("role")).toString().equals("ADMIN")) {
+                                Intent intent = new Intent(MainActivity.this, Incidents.class);
                                 startActivity(intent);
                                 finish();
                             } else {
-                                Intent intent = new Intent(MainActivity.this,UserPage.class);
+                                Intent intent = new Intent(MainActivity.this, UserPage.class);
                                 startActivity(intent);
                                 finish();
                             }
@@ -97,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this,Register.class);
+                Intent intent = new Intent(MainActivity.this, Register.class);
                 startActivity(intent);
                 finish();
             }
@@ -107,25 +115,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         //request permissions
         requestGPSPermission();
+        addLocationListener();
     }
+
     @Override
-    public void onClick(View view)
-    {
+    public void onClick(View view) {
         //login function
         TextView name = findViewById(R.id.username);
         TextView pass = findViewById(R.id.password);
         String username = name.getText().toString();
         String password = pass.getText().toString();
-        if(username.equals(""))
-        {
-            Toast.makeText(this,"Username is required!",Toast.LENGTH_SHORT).show();
-        }
-        else if(password.equals(""))
-        {
-            Toast.makeText(this,"Password is required!",Toast.LENGTH_SHORT).show();
-        }
-        else
-        {
+        if (username.equals("")) {
+            Toast.makeText(this, "Username is required!", Toast.LENGTH_SHORT).show();
+        } else if (password.equals("")) {
+            Toast.makeText(this, "Password is required!", Toast.LENGTH_SHORT).show();
+        } else {
             mAuth.signInWithEmailAndPassword(username, password)
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                         @Override
@@ -142,12 +146,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                             DocumentSnapshot document = task.getResult();
                                             if (document.exists()) {
                                                 Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                                                if(Objects.requireNonNull(document.get("role")).toString().equals("ADMIN")) {
-                                                    Intent intent = new Intent(MainActivity.this,Incidents.class);
+                                                if (Objects.requireNonNull(document.get("role")).toString().equals("ADMIN")) {
+                                                    Intent intent = new Intent(MainActivity.this, Incidents.class);
                                                     startActivity(intent);
                                                     finish();
                                                 } else {
-                                                    Intent intent = new Intent(MainActivity.this,UserPage.class);
+                                                    Intent intent = new Intent(MainActivity.this, UserPage.class);
                                                     startActivity(intent);
                                                     finish();
                                                 }
@@ -173,15 +177,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    public void requestGPSPermission()
-    {
+    public void requestGPSPermission() {
         //request gps permission
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},123);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION}, 123);
             return;
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 600000, 0, this);
     }
 
     @Override
@@ -190,9 +193,48 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public void onLocationChanged(@NonNull Location location) {
+    public void onLocationChanged(@NonNull Location location)
+    {
+        longitude = location.getLongitude();
+        latitude = location.getLatitude();
 
     }
+
+    private void addLocationListener() {
+        triggerService = new Thread(new Runnable() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            public void run() {
+                try {
+                    Looper.prepare();//Initialise the current thread as a looper.
+
+                    Criteria c = new Criteria();
+                    c.setAccuracy(Criteria.ACCURACY_COARSE);
+
+                    final String PROVIDER = locationManager.getBestProvider(c, true);
+
+                    if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        // TODO: Consider calling
+                        //    ActivityCompat#requestPermissions
+                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION}, 123);
+                        // here to request the missing permissions, and then overriding
+                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                        //                                          int[] grantResults)
+                        // to handle the case where the user grants the permission. See the documentation
+                        // for ActivityCompat#requestPermissions for more details.
+                        return;
+                    }
+                    //lm.requestLocationUpdates(PROVIDER, 600000, 0, MainActivity.this);
+                    Log.d("LOC_SERVICE", "Service RUNNING!");
+                    Looper.loop();
+                }catch(Exception ex){
+                    ex.printStackTrace();
+                }
+            }
+        }, "LocationThread");
+        triggerService.start();
+    }
+
+
 
 
 
