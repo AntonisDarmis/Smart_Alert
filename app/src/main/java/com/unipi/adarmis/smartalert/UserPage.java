@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.auth.User;
 
 public class UserPage extends AppCompatActivity implements View.OnClickListener, LocationListener {
     Button submitButton, signOutButton;
@@ -32,6 +33,7 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
     public void onStart()
     {
         super.onStart();
+
         addLocationListener();
 
     }
@@ -77,12 +79,14 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
                     Criteria c = new Criteria();
                     c.setAccuracy(Criteria.ACCURACY_COARSE);
 
-                    final String PROVIDER = locationManager.getBestProvider(c, true);
+
 
                     if (ActivityCompat.checkSelfPermission(UserPage.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(UserPage.this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         // TODO: Consider calling
                         //    ActivityCompat#requestPermissions
                         ActivityCompat.requestPermissions(UserPage.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 123);
+                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 600000, 0, UserPage.this);
+                        final String PROVIDER = locationManager.getBestProvider(c, true);
                         // here to request the missing permissions, and then overriding
                         //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
                         //                                          int[] grantResults)
