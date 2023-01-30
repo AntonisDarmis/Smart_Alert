@@ -42,7 +42,6 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
     public void onStart()
     {
         super.onStart();
-
         addLocationListener();
 
     }
@@ -82,6 +81,7 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
         FirebaseUser currentUser = mAuth.getCurrentUser();
         String cur_uid = currentUser.getUid();
         DocumentReference docRef = db.collection("users").document(cur_uid);
+        Log.d("Location Changed","Location has changed");
         docRef.update("longitude",longitude)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -116,7 +116,9 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
             @RequiresApi(api = Build.VERSION_CODES.M)
             public void run() {
                 try {
+
                     Looper.prepare();//Initialise the current thread as a looper.
+                    locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
                     Criteria c = new Criteria();
                     c.setAccuracy(Criteria.ACCURACY_COARSE);
@@ -127,8 +129,7 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
                         // TODO: Consider calling
                         //    ActivityCompat#requestPermissions
                         ActivityCompat.requestPermissions(UserPage.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 123);
-                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 600000, 0, UserPage.this);
-                        final String PROVIDER = locationManager.getBestProvider(c, true);
+                        //final String PROVIDER = locationManager.getBestProvider(c, true);
                         // here to request the missing permissions, and then overriding
                         //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
                         //                                          int[] grantResults)
@@ -136,6 +137,7 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
                         // for ActivityCompat#requestPermissions for more details.
                         return;
                     }
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, UserPage.this);
                     //lm.requestLocationUpdates(PROVIDER, 600000, 0, MainActivity.this);
                     Log.d("LOC_SERVICE", "Service RUNNING!");
                     Looper.loop();
