@@ -35,7 +35,6 @@ public class GroupImages extends AppCompatActivity {
     private ImageAdapter mAdapter;
 
     private StorageReference storage;
-    private FirebaseFirestore db;
     private List<Upload> mUploads;
     IncidentGroup group;
 
@@ -55,33 +54,42 @@ public class GroupImages extends AppCompatActivity {
         mUploads = new ArrayList<>();
 
         storage = FirebaseStorage.getInstance().getReference("images");
-        db = FirebaseFirestore.getInstance();
+
+        getImagesFromFirestore("jpg");
 
 
+    }
+
+    private void getImagesFromFirestore(String extension) {
         for (IncidentPoint p : group.getIncidents()) {
-            String filePath = p.getId()+".jpg";
+            String filePath = p.getId()+"."+extension;
             Uri uri = Uri.parse(filePath);
             storage.child(filePath).getDownloadUrl()
                     .addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
-                            Toast.makeText(GroupImages.this,uri.toString(),Toast.LENGTH_SHORT).show();
-                            Upload upload = new Upload(filePath,uri.toString());
+                            //Toast.makeText(GroupImages.this,uri.toString(),Toast.LENGTH_SHORT).show();
+                            Upload upload = new Upload(filePath,uri.toString(),p.getDate());
                             mUploads.add(upload);
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(GroupImages.this,"Failed",Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(GroupImages.this,"Failed",Toast.LENGTH_SHORT).show();
                             Log.d("IMAGE_GET",e.getMessage());
+                        }
+                    })
+                    .addOnCompleteListener(new OnCompleteListener<Uri>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Uri> task) {
+                            if(task.isSuccessful()) {
+                                mAdapter = new ImageAdapter(GroupImages.this,mUploads);
+                                mRecyclerView.setAdapter(mAdapter);
+                            }
                         }
                     });
         }
-
-        mAdapter = new ImageAdapter(GroupImages.this,mUploads);
-        Toast.makeText(GroupImages.this,String.valueOf(mUploads.size()),Toast.LENGTH_SHORT).show();
-        mRecyclerView.setAdapter(mAdapter);
     }
 
 

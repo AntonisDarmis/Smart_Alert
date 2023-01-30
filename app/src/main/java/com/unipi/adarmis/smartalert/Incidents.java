@@ -1,6 +1,9 @@
 package com.unipi.adarmis.smartalert;
 
+import static android.content.ContentValues.TAG;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -10,6 +13,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -24,7 +28,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.common.collect.Table;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.unipi.adarmis.smartalert.backend.IncidentGroup;
@@ -61,6 +67,48 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
+
+        db.collection("incidents")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @RequiresApi(api = Build.VERSION_CODES.O)
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                        if (error != null) {
+                            Log.w(TAG, "Listen failed.", error);
+                        } else {
+                            List<IncidentPoint> points = new ArrayList<>();
+                            int index = 0;
+                            for(QueryDocumentSnapshot d : value) {
+                                if(d.getString("type").equals(category)) {
+                                    Date docDate = d.getTimestamp("timestamp").toDate();
+                                    Date today = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
+                                    if(getDateDiff(docDate,today,TimeUnit.DAYS)<1) {
+                                        String id = d.getId();
+                                        String comment = d.getString("comment");
+                                        String incType = d.getString("type");
+                                        Double longitude = d.getDouble("longitude");
+                                        Double latitude = d.getDouble("latitude");
+                                        Location loc = new Location("location");
+                                        loc.setLongitude(longitude);
+                                        loc.setLatitude(latitude);
+                                        //locations.add(loc);
+                                        IncidentPoint point = new IncidentPoint(incType,loc,index,comment,id,docDate);
+                                        points.add(point);
+                                        index++;
+                                    }
+                                }
+                            }
+                            Toast.makeText(Incidents.this,"New incident uploaded, retrieving changes...",Toast.LENGTH_LONG).show();
+                            clearTable();
+                            groups = Ranking.rank(points,10000);
+                            try {
+                                fillTable(groups);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }
+                });
 
     }
 
