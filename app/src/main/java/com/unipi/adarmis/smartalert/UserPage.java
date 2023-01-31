@@ -15,6 +15,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -32,23 +33,28 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
     Button submitButton, signOutButton;
     LocationManager locationManager;
     Thread triggerService;
-    Double longitude,latitude;
+    Double longitude, latitude;
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
 
     @Override
-    public void onStart()
-    {
+    public void onStart() {
         super.onStart();
-        addLocationListener();
+
 
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_index_page);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
+            requestGPSPermission();
+        }
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -57,6 +63,19 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
         submitButton.setOnClickListener(this);
 
         signOutButton = findViewById(R.id.logOutButton);
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 600000, 0, this);
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+
         signOutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -110,8 +129,26 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
                 });
     }
 
+    public void requestGPSPermission() {
+        //request gps permission
 
-    private void addLocationListener() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(intent);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION}, 123);
+            return;
+        }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+   /* private void addLocationListener() {
         triggerService = new Thread(new Runnable() {
             @RequiresApi(api = Build.VERSION_CODES.M)
             public void run() {
@@ -147,5 +184,6 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
             }
         }, "LocationThread");
         triggerService.start();
-    }
+    }*/
+
 }

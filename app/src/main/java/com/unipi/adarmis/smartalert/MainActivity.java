@@ -19,6 +19,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onStart() {
         super.onStart();
+
         db = FirebaseFirestore.getInstance();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -112,9 +114,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
         //set location manager
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+       // locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         //request permissions
-        requestGPSPermission();
+       // requestGPSPermission();
        // addLocationListener();
     }
 
@@ -130,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else if (password.equals("")) {
             Toast.makeText(this, "Password is required!", Toast.LENGTH_SHORT).show();
         } else {
-            mAuth.signInWithEmailAndPassword(username, password)
+                mAuth.signInWithEmailAndPassword(username, password)
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
@@ -177,27 +179,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    public void requestGPSPermission() {
-        //request gps permission
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION}, 123);
-            return;
-        }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 600000, 0, this);
-    }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
 
     @Override
     public void onLocationChanged(@NonNull Location location)
     {
-        longitude = location.getLongitude();
-        latitude = location.getLatitude();
-
+        ////
     }
 
 
