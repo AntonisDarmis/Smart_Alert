@@ -29,6 +29,10 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
@@ -41,6 +45,10 @@ public class LocationService extends Service {
     FusedLocationProviderClient fusedLocationClient;
     LocationRequest locationRequest;
     LocationCallback locationCallback;
+
+    FirebaseFirestore db;
+
+    private String uid;
 
     private void startLocationUpdates() {
         Log.d("STARTLOCATIONUDPATES","IN");
@@ -86,18 +94,18 @@ public class LocationService extends Service {
                 //.setMaxUpdateDelayMillis(5000)
                 //.build();
         locationRequest = LocationRequest.create();
-        locationRequest.setInterval(3000);
-        locationRequest.setFastestInterval(3000);
-        locationRequest.setMaxWaitTime(5000);
+        locationRequest.setInterval(60000);
+        //locationRequest.setFastestInterval(6000);
+        locationRequest.setMaxWaitTime(180000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 Location location =  locationResult.getLastLocation();
-                Toast.makeText(getApplicationContext(),
-                        "Lat: "+Double.toString(location.getLatitude()) + '\n' +
-                                "Long: " + Double.toString(location.getLongitude()), Toast.LENGTH_LONG).show();
+                sendLocationToDb(location);
+                //Toast.makeText(getApplicationContext(),"Lat: "+Double.toString(location.getLatitude()) + '\n' +
+                  //              "Long: " + Double.toString(location.getLongitude()), Toast.LENGTH_LONG).show();
 
                 //locationArrayList.add(new LatLng(location.getLatitude(), location.getLongitude()));
 
@@ -107,6 +115,40 @@ public class LocationService extends Service {
             }
         };
         startLocationUpdates();
+    }
+
+    public void sendLocationToDb(Location location) {
+        Double longitude = location.getLongitude();
+        Double latitude = location.getLatitude();
+        db = FirebaseFirestore.getInstance();
+        DocumentReference docRef = db.collection("users").document(uid);
+        docRef.update("longitude",longitude)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Log.d("LOCATIONSERVICE","Updated longitude");
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        //Toast.makeText(.this,"Failed",Toast.LENGTH_SHORT).show();
+                        Log.d("LOCATIONSERVICE","Failed to update longitude");
+                    }
+                });
+
+        docRef.update("latitude",latitude)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Log.d("LOCATIONSERVICE","Updated latitude");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d("LOCATIONSERVICE","Failed to update latitude");
+                    }
+                });
     }
 
 
@@ -141,6 +183,7 @@ public class LocationService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
+        uid = (String) intent.getExtras().get("uid");
         return START_STICKY;
     }
 

@@ -10,9 +10,13 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -50,6 +54,8 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
     LocationService mLocationService = new LocationService();
     Intent mServiceIntent;
 
+    private String cur_uid;
+
 
     @Override
     public void onStart()
@@ -58,6 +64,7 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
         //addLocationListener();
 
     }
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,6 +85,9 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        cur_uid = currentUser.getUid();
+
         submitButton = findViewById(R.id.submitButton);
         submitButton.setOnClickListener(this);
 
@@ -91,6 +101,14 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
                 startActivity(intent);
             }
         });
+
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationChannel mChannel = new NotificationChannel(Constants.CHANNEL_ID,Constants.CHANNEL_NAME,NotificationManager.IMPORTANCE_HIGH);
+        mChannel.setDescription(Constants.CHANNEL_DESCRIPTION);
+        mChannel.enableLights(true);
+        mChannel.setLightColor(Color.RED);
+
+        mNotificationManager.createNotificationChannel(mChannel);
     }
 
     @Override
@@ -132,8 +150,7 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
     {
         longitude = location.getLongitude();
         latitude = location.getLatitude();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        String cur_uid = currentUser.getUid();
+
         DocumentReference docRef = db.collection("users").document(cur_uid);
         Log.d("Location Changed","Location has changed");
         docRef.update("longitude",longitude)
@@ -234,7 +251,8 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
 
     private void starServiceFunc(){
         mLocationService = new LocationService();
-        mServiceIntent = new Intent(this, mLocationService.getClass());
+        mServiceIntent = new Intent(UserPage.this, mLocationService.getClass());
+        mServiceIntent.putExtra("uid",cur_uid);
         if (!Util.isMyServiceRunning(mLocationService.getClass(), this)) {
             startService(mServiceIntent);
             Toast.makeText(this, "Started service", Toast.LENGTH_SHORT).show();
