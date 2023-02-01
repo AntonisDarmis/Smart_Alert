@@ -38,6 +38,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Source;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,12 +52,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView register;
     Thread triggerService;
     Double longitude,latitude;
+    private String token = null;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
     @Override
     public void onStart() {
         super.onStart();
+
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                            return;
+                        }
+
+                        // Get new FCM registration token
+                        token = task.getResult();
+
+                        // Log and toast
+                        //String msg = getString(R.string.msg_token_fmt, token);
+                        //Log.d(TAG, msg);
+                        //Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+
+                    }
+                });
 
         db = FirebaseFirestore.getInstance();
         // Check if user is signed in (non-null) and update UI accordingly.
@@ -76,9 +98,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 startActivity(intent);
                                 finish();
                             } else {
-                                Intent intent = new Intent(MainActivity.this, UserPage.class);
-                                startActivity(intent);
-                                finish();
+                                if(document.get("token").equals(token)) {
+                                    Intent intent = new Intent(MainActivity.this, UserPage.class);
+                                    startActivity(intent);
+                                    finish();
+                                } else {
+                                    Toast.makeText(MainActivity.this,"You are already logged in in another device!",Toast.LENGTH_LONG).show();
+                                }
                             }
                         } else {
                             Log.d(TAG, "No such document");

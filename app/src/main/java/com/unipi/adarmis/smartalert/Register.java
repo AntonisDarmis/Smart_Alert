@@ -25,6 +25,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +38,7 @@ public class Register extends AppCompatActivity  {
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
 
+    private String token = null;
 
 
     @Override
@@ -70,6 +72,27 @@ public class Register extends AppCompatActivity  {
                     Toast.makeText(Register.this,"Password is required and must be at least 6 characters long!",Toast.LENGTH_SHORT).show();
                     return;
                 }
+
+                FirebaseMessaging.getInstance().getToken()
+                        .addOnCompleteListener(new OnCompleteListener<String>() {
+                            @Override
+                            public void onComplete(@NonNull Task<String> task) {
+                                if (!task.isSuccessful()) {
+                                    Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                                    return;
+                                }
+
+                                // Get new FCM registration token
+                                token = task.getResult();
+
+                                // Log and toast
+                                //String msg = getString(R.string.msg_token_fmt, token);
+                                //Log.d(TAG, msg);
+                                //Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+
+                            }
+                        });
+
                 mAuth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener( new OnCompleteListener<AuthResult>() {
                             @Override
@@ -79,6 +102,7 @@ public class Register extends AppCompatActivity  {
                                     Map<String,Object> user = new HashMap<>();
                                     user.put("email",email);
                                     user.put("role","USER");
+                                    user.put("token",token);
                                     db.collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()))
                                             .set(user)
                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -112,4 +136,8 @@ public class Register extends AppCompatActivity  {
             }
         });
     }
+
+
+
+
 }
