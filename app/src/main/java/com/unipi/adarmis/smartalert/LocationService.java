@@ -184,6 +184,12 @@ public class LocationService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         uid = (String) intent.getExtras().get("uid");
+        if(uid!=null) {
+            Log.d("LOCATIONSERVICE",uid);
+        } else {
+            Log.d("LOCATIONSERVICE","UID IS NULL");
+        }
+
         return START_STICKY;
     }
 

@@ -77,16 +77,16 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
             requestGPSPermission();
         } */
 
-        askNotificationPermission();
-
-        permissionsTricky();
-        starServiceFunc();
-
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
         cur_uid = currentUser.getUid();
+
+        askNotificationPermission();
+
+        permissionsTricky();
+        starServiceFunc();
 
         submitButton = findViewById(R.id.submitButton);
         submitButton.setOnClickListener(this);

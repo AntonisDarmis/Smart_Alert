@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -93,6 +94,7 @@ public class IncidentDetails extends AppCompatActivity {
                             for(QueryDocumentSnapshot documentSnapshot : task.getResult()) {
                                 Double longitude = documentSnapshot.getDouble("longitude");
                                 Double latitude = documentSnapshot.getDouble("latitude");
+                                //Log.d("NOTIFYUSERS",documentSnapshot.getString("role"));
                                 Location userLoc = new Location("");
                                 userLoc.setLongitude(longitude);
                                 userLoc.setLatitude(latitude);
@@ -101,6 +103,7 @@ public class IncidentDetails extends AppCompatActivity {
 
                                 double distance = centerLoc.distanceTo(userLoc);
                                 if(distance <= 10000) {
+                                    Log.d("NOTIFYUSER","INSIDE DISTANCE CHECK");
                                     String token = documentSnapshot.getString("token");
                                     mRequestQueue.add(notifyUsers(url,token));
                                 }
