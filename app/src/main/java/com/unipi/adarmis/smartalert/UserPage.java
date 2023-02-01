@@ -81,10 +81,10 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
         signOutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                starServiceFunc();
-                //FirebaseAuth.getInstance().signOut();
-                //Intent intent = new Intent(UserPage.this,MainActivity.class);
-                //startActivity(intent);
+                stopServiceFunc();
+                FirebaseAuth.getInstance().signOut();
+                Intent intent = new Intent(UserPage.this,MainActivity.class);
+                startActivity(intent);
             }
         });
     }

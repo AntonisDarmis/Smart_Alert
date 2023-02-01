@@ -27,6 +27,7 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -80,6 +81,10 @@ public class LocationService extends Service {
         );
 
         //locationRequest = LocationRequest.Builder
+        //locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY)
+                //.setIntervalMillis(3000)
+                //.setMaxUpdateDelayMillis(5000)
+                //.build();
         locationRequest = LocationRequest.create();
         locationRequest.setInterval(3000);
         locationRequest.setFastestInterval(3000);
