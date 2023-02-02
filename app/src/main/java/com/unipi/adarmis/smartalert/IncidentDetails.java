@@ -41,6 +41,8 @@ public class IncidentDetails extends AppCompatActivity {
     private FirebaseFirestore db;
     IncidentGroup group;
 
+    private Map<String,Integer> radiusMap = Map.of("Earthquake",20000,"Typhoon",10000,"Flood",8000,"Fire",10000,"Tsunami",20000);
+
     //BAD IDEA TO PUSH THIS TO GITHUB
     private String API_KEY = "AAAAFfz7fBg:APA91bHaP_UYoWvEPMpBIVLHDIuPD57fI9TNNCtdthixb8qlhgmRXt1VwsDUzefj7JsiUC3Oedr_ECWo-ovLN5DDo6BuAnmMpnkNXfuM3Hb2UUUfTy0c8GH5XimIy9Kb1t3c6Fhek4tE";
     private String url = "https://fcm.googleapis.com/fcm/send";
@@ -102,10 +104,10 @@ public class IncidentDetails extends AppCompatActivity {
                                 Location centerLoc = group.getCenter();
 
                                 double distance = centerLoc.distanceTo(userLoc);
-                                if(distance <= 10000) {
+                                if(distance <= radiusMap.get(group.getType())) {
                                     Log.d("NOTIFYUSER","INSIDE DISTANCE CHECK");
                                     String token = documentSnapshot.getString("token");
-                                    mRequestQueue.add(notifyUsers(url,token));
+                                    mRequestQueue.add(notifyUsers(url,token,distance));
                                 }
                             }
                         } else {
@@ -115,7 +117,7 @@ public class IncidentDetails extends AppCompatActivity {
                 });
     }
 
-    private StringRequest notifyUsers(String url, String targetToken) {
+    private StringRequest notifyUsers(String url, String targetToken, double distance) {
         StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -135,6 +137,8 @@ public class IncidentDetails extends AppCompatActivity {
                 return headers;
             }
 
+            String message = "Υπάρχει "+group.getType()+" σε απόσταση "+String.valueOf(distance).substring(0,5)+"km από εσάς! \n Κινηθείτε με προσοχή!";
+
             @Override
             public byte[] getBody() throws AuthFailureError {
                 JSONObject jsonObject = new JSONObject();
@@ -142,8 +146,8 @@ public class IncidentDetails extends AppCompatActivity {
                     jsonObject.put("to", targetToken);
 
                     JSONObject data = new JSONObject();
-                    data.put("title", "Smart Alert: ");
-                    data.put("content", "content");
+                    data.put("title", "ΠΡΟΣΟΧΗ: "+group.getType());
+                    data.put("content", message);
 
                     jsonObject.put("data", data);
 

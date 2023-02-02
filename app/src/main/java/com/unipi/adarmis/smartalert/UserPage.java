@@ -86,7 +86,7 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
         askNotificationPermission();
 
         permissionsTricky();
-        starServiceFunc();
+        //starServiceFunc();
 
         submitButton = findViewById(R.id.submitButton);
         submitButton.setOnClickListener(this);
@@ -216,9 +216,13 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
 
                 }else if (ActivityCompat.checkSelfPermission(UserPage.this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
                         == PackageManager.PERMISSION_GRANTED){
+                    locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+                    locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER,UserPage.this,null);
                     starServiceFunc();
                 }
             }else{
+                locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+                locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER,UserPage.this,null);
                 starServiceFunc();
             }
 

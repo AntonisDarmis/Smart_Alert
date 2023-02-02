@@ -52,9 +52,13 @@ import java.util.concurrent.TimeUnit;
 
 public class Incidents extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     private FirebaseFirestore db;
-    private String category;
+    private String category = "Earthquake";
     private boolean display = true;
     private List<IncidentGroup> groups;
+
+    private Map<String,Integer> timeMap = Map.of("Earthquake",12,"Typhoon",5,"Flood",12,"Fire",7,"Tsunami",2);
+    private Map<String,Integer> radiusMap = Map.of("Earthquake",20000,"Typhoon",10000,"Flood",8000,"Fire",10000,"Tsunami",20000);
+    private Map<String,TimeUnit> unitMap = Map.of("Earthquake",TimeUnit.HOURS,"Typhoon",TimeUnit.HOURS,"Flood",TimeUnit.HOURS,"Fire",TimeUnit.DAYS,"Tsunami",TimeUnit.HOURS);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +88,7 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
                                 if(d.getString("type").equals(category)) {
                                     Date docDate = d.getTimestamp("timestamp").toDate();
                                     Date today = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
-                                    if(getDateDiff(docDate,today,TimeUnit.DAYS)<1) {
+                                    if(getDateDiff(docDate,today,unitMap.get(category))<timeMap.get(category)) {
                                         String id = d.getId();
                                         String comment = d.getString("comment");
                                         String incType = d.getString("type");
@@ -103,7 +107,7 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
                             }
                             Toast.makeText(Incidents.this,"New incident uploaded, retrieving changes...",Toast.LENGTH_LONG).show();
                             clearTable();
-                            groups = Ranking.rank(points,10000);
+                            groups = Ranking.rank(points,radiusMap.get(category));
                             try {
                                 fillTable(groups);
                             } catch (IOException e) {
@@ -124,8 +128,6 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
     }
 
 
-
-
     public void computeCenters() {
         db.collection("incidents")
                 .whereEqualTo("type",category)
@@ -143,7 +145,7 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
                             for(QueryDocumentSnapshot document : task.getResult()) {
                                 Date docDate = document.getTimestamp("timestamp").toDate();
                                 Date today = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
-                                if(getDateDiff(docDate,today,TimeUnit.DAYS)<1) {
+                                if(getDateDiff(docDate,today,unitMap.get(category))<timeMap.get(category)) {
                                     String id = document.getId();
                                     String comment = document.getString("comment");
                                     String incType = document.getString("type");
@@ -159,7 +161,7 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
                                 }
                             }
                             //Log.d("INCIDENTS",String.valueOf(points.size()));
-                            groups = Ranking.rank(points,10000);
+                            groups = Ranking.rank(points,radiusMap.get(category));
                             try {
                                 fillTable(groups);
                             } catch (IOException e) {
@@ -218,7 +220,6 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
                     tableRow.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            //MAKE INCIDENTGROUP PARCELABLE
                             Bundle extras = new Bundle();
                             extras.putParcelable("group",g);
                             Intent intent = new Intent(Incidents.this,IncidentDetails.class);

@@ -38,6 +38,9 @@ public class GroupImages extends AppCompatActivity {
     private List<Upload> mUploads;
     IncidentGroup group;
 
+    int counter = 0;
+    int pointCounter = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,13 +60,14 @@ public class GroupImages extends AppCompatActivity {
 
         getImagesFromFirestore("jpg");
 
-
     }
 
     private void getImagesFromFirestore(String extension) {
+        pointCounter = 0;
         for (IncidentPoint p : group.getIncidents()) {
             String filePath = p.getId()+"."+extension;
             Uri uri = Uri.parse(filePath);
+            Log.d("IMG_FILEPATH",filePath);
             storage.child(filePath).getDownloadUrl()
                     .addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
@@ -71,6 +75,8 @@ public class GroupImages extends AppCompatActivity {
                             //Toast.makeText(GroupImages.this,uri.toString(),Toast.LENGTH_SHORT).show();
                             Upload upload = new Upload(filePath,uri.toString(),p.getDate());
                             mUploads.add(upload);
+                            counter+=1;
+                            Log.d("IMG_COUNTER",String.valueOf(counter));
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -86,9 +92,15 @@ public class GroupImages extends AppCompatActivity {
                             if(task.isSuccessful()) {
                                 mAdapter = new ImageAdapter(GroupImages.this,mUploads);
                                 mRecyclerView.setAdapter(mAdapter);
+                            } else {
+                                if(pointCounter==group.getIncidents().size() && counter==0) {
+                                    Toast.makeText(GroupImages.this,"No images found for this event.",Toast.LENGTH_LONG).show();
+                                    finish();
+                                }
                             }
                         }
                     });
+            pointCounter+=1;
         }
     }
 
