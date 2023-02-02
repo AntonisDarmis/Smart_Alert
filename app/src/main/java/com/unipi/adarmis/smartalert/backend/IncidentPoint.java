@@ -33,6 +33,8 @@ public class IncidentPoint implements Parcelable
         this.date = date;
     }
 
+    public int getPoint() {return point;}
+
     public void setNeighbours(List<Integer> neighbours) {
         this.neighbours = neighbours;
     }

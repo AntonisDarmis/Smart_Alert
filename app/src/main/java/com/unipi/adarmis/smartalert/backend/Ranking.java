@@ -9,6 +9,7 @@ import android.util.Log;
 import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -80,10 +81,11 @@ public class Ranking {
 
             //add these neighbours to a group (neighbours include the point itself
             List<IncidentPoint> groupPoints = new ArrayList<>();
-            Log.d("POINTS SIZE",String.valueOf(points.size()));
+            //Log.d("POINTS SIZE",String.valueOf(points.size()));
             for (Integer i : currMax.getNeighbours()) {
-                Log.d("NEIGHBOUR",String.valueOf(i));
-                groupPoints.add(points.get(i));
+                //Log.d("NEIGHBOUR",String.valueOf(i));
+                //groupPoints.add(points.get(i));
+                groupPoints.add(getByPoint(points,i));
             }
             groups.add(new IncidentGroup(groupPoints)); //add group to list of groups
 
@@ -106,7 +108,10 @@ public class Ranking {
     }
 
 
-
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private static IncidentPoint getByPoint(Collection<IncidentPoint> points, int point) {
+        return points.stream().filter(p -> point==p.getPoint()).findFirst().orElse(null);
+    }
 
     public static boolean NoMorePoints(List<IncidentPoint> points)
     {
