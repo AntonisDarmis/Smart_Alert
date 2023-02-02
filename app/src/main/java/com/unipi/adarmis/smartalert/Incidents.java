@@ -158,6 +158,7 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
                                     index++;
                                 }
                             }
+                            //Log.d("INCIDENTS",String.valueOf(points.size()));
                             groups = Ranking.rank(points,10000);
                             try {
                                 fillTable(groups);
@@ -248,6 +249,7 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
         //compute centers for selected category
         Log.d("Event","item select");
         if(!display) {
+            //groups = new ArrayList();
             clearTable();
             computeCenters();
         }

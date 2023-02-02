@@ -22,6 +22,7 @@ public class Ranking {
             return new ArrayList<>();
         }
 
+
         //compute all pairwise distances
         int size = points.size();
         double [][] distances = new double[size][size];
@@ -53,9 +54,25 @@ public class Ranking {
             points.get(i).setNeighbours(neighbours);
         }
 
+
         //keep largest groups in greedy manner
         //List<IncidentPoint> groups = new ArrayList<>();
         List<IncidentGroup> groups = new ArrayList<>();
+
+        if (points.size()==2 && points.get(0).getNeighbours().size()==1) {
+            List<IncidentPoint> first = new ArrayList<>();
+            first.add(points.get(0));
+            List<IncidentPoint> second = new ArrayList<>();
+            second.add(points.get(1));
+            groups.add(new IncidentGroup(first));
+            groups.add(new IncidentGroup(second));
+            for(IncidentGroup g : groups) {
+                String cntr = "("+String.valueOf(g.getCenter().getLongitude())+", "+String.valueOf(g.getCenter().getLatitude())+")";
+                Log.d("Center",cntr);
+            }
+            return groups;
+        }
+
         while(!NoMorePoints(points))    //while unassigned points exist
         {
             //get point with the most neighbours
@@ -63,7 +80,9 @@ public class Ranking {
 
             //add these neighbours to a group (neighbours include the point itself
             List<IncidentPoint> groupPoints = new ArrayList<>();
+            Log.d("POINTS SIZE",String.valueOf(points.size()));
             for (Integer i : currMax.getNeighbours()) {
+                Log.d("NEIGHBOUR",String.valueOf(i));
                 groupPoints.add(points.get(i));
             }
             groups.add(new IncidentGroup(groupPoints)); //add group to list of groups
