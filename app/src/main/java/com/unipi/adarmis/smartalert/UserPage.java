@@ -143,6 +143,7 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
             }
         }
+
     }
 
     @Override

@@ -22,6 +22,10 @@ public class Ranking {
         {
             return new ArrayList<>();
         }
+        else if(points.size() ==  2)
+        {
+
+        }
 
 
         //compute all pairwise distances
@@ -79,7 +83,7 @@ public class Ranking {
             //get point with the most neighbours
             IncidentPoint currMax = Collections.max(points, Comparator.comparing(c -> c.getNeighbours().size()));
 
-            //add these neighbours to a group (neighbours include the point itself
+            //add these neighbours to a group (neighbours include the point itself)
             List<IncidentPoint> groupPoints = new ArrayList<>();
             //Log.d("POINTS SIZE",String.valueOf(points.size()));
             for (Integer i : currMax.getNeighbours()) {

@@ -51,7 +51,7 @@ public class LocationService extends Service {
     private String uid;
 
     private void startLocationUpdates() {
-        Log.d("STARTLOCATIONUDPATES","IN");
+        Log.d("STARTLOCATIONUDPATES", "IN");
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -81,7 +81,16 @@ public class LocationService extends Service {
         new Notification();
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) createNotificationChanel() ;
         else startForeground(
                 1,
@@ -90,9 +99,9 @@ public class LocationService extends Service {
 
         //locationRequest = LocationRequest.Builder
         //locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY)
-                //.setIntervalMillis(3000)
-                //.setMaxUpdateDelayMillis(5000)
-                //.build();
+        //.setIntervalMillis(3000)
+        //.setMaxUpdateDelayMillis(5000)
+        //.build();
         locationRequest = LocationRequest.create();
         locationRequest.setInterval(60000);
         //locationRequest.setFastestInterval(6000);

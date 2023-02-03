@@ -48,17 +48,20 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, LocationListener {
     Button loginButton;
-    LocationManager locationManager;
+    LocationManager lm;
     TextView register;
     Thread triggerService;
     Double longitude,latitude;
     private String token = null;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
+    boolean gps_enabled = false;
+    boolean network_enabled = false;
 
     @Override
     public void onStart() {
         super.onStart();
+
 
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(new OnCompleteListener<String>() {
@@ -80,10 +83,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 });
 
+
         db = FirebaseFirestore.getInstance();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
+        if (currentUser != null && gps_enabled && network_enabled ) {
+            Log.d("Network_enabled","True");
+            Log.d("GPS_enabled","True");
             String cur_uid = currentUser.getUid();
             DocumentReference docRef = db.collection("users").document(cur_uid);
             docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -116,6 +122,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             });
 
         }
+        else
+        {
+            Toast.makeText(MainActivity.this,"Please check GPS and internet connection!",Toast.LENGTH_LONG).show();
+        }
     }
 
 
@@ -130,9 +140,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         loginButton.setOnClickListener(this);
 
         register = findViewById(R.id.openRegister);
+         lm = (LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
+        try {
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch(Exception ex) {}
+        try {
+            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch(Exception ex) {}
+        Log.d("GPS STATE ON CREATE",String.valueOf(gps_enabled));
         register.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View view) {
+
                 Intent intent = new Intent(MainActivity.this, Register.class);
                 startActivity(intent);
                 finish();
@@ -153,6 +173,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         TextView pass = findViewById(R.id.password);
         String username = name.getText().toString();
         String password = pass.getText().toString();
+        try {
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch(Exception ex) {}
+        try {
+            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch(Exception ex) {}
         if (username.equals("")) {
             Toast.makeText(this, "Username is required!", Toast.LENGTH_SHORT).show();
         } else if (password.equals("")) {
@@ -170,20 +196,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                        if (task.isSuccessful()) {
+                                        if (task.isSuccessful())
+                                        {
+                                            Log.d("GPS STATE ON COMPLETE",String.valueOf(gps_enabled));
                                             DocumentSnapshot document = task.getResult();
-                                            if (document.exists()) {
+                                            if (document.exists())
+                                            {
                                                 Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                                                 if (Objects.requireNonNull(document.get("role")).toString().equals("ADMIN")) {
-                                                    Intent intent = new Intent(MainActivity.this, Incidents.class);
-                                                    startActivity(intent);
-                                                    finish();
-                                                } else {
-                                                    Intent intent = new Intent(MainActivity.this, UserPage.class);
-                                                    startActivity(intent);
-                                                    finish();
+                                                    if(network_enabled)
+                                                    {
+                                                        Intent intent = new Intent(MainActivity.this, Incidents.class);
+                                                        startActivity(intent);
+                                                        finish();
+                                                    }
+                                                    else
+                                                    {
+                                                        Toast.makeText(MainActivity.this, "Please check internet connection!",
+                                                                Toast.LENGTH_LONG).show();
+                                                    }
                                                 }
-                                            } else {
+                                                else if (Objects.requireNonNull(document.get("role")).toString().equals("USER")) {
+                                                    if(network_enabled && gps_enabled) {
+                                                        Intent intent = new Intent(MainActivity.this, UserPage.class);
+                                                        startActivity(intent);
+                                                        finish();
+                                                    }
+                                                    else
+                                                    {
+                                                        Toast.makeText(MainActivity.this, "Please check if internet connection and GPS are enabled!",
+                                                                Toast.LENGTH_LONG).show();
+                                                    }
+                                                }
+                                            }
+                                            else {
                                                 Log.d(TAG, "No such document");
                                             }
                                         } else {

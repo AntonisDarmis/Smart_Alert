@@ -54,6 +54,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SubmitIncident extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener, LocationListener {
+    boolean gps_enabled,network_enabled;
     Button submitButton, selectImage;
     private String category;
 
@@ -112,55 +113,72 @@ public class SubmitIncident extends AppCompatActivity implements View.OnClickLis
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onClick(View view) {
+
         if(view.getId() == R.id.selectImage)
         {
             Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             startActivityForResult(intent,3);
 
         }
-        else if(view.getId() == R.id.submitIncident)
+        else if(view.getId() == R.id.submitIncident) {
+            try {
+                gps_enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            } catch (Exception ex) {
+            }
+
+            try {
+                network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            } catch (Exception ex) {
+            }
+
+            if (gps_enabled && network_enabled) {
+                Double x = Double.parseDouble(longitude.getText().toString());
+                Double y = Double.parseDouble(latitude.getText().toString());
+                //convert to cartesian coordinates
+                // Double lonRad = Math.PI * x / 180;
+                // Double latRad = Math.PI * y / 180;
+                // x = 6371 * Math.cos(latRad) * Math.cos(lonRad);
+                // y = 6371 * Math.cos(latRad) * Math.sin(lonRad);
+                String comm = comment.getText().toString();
+                //category
+
+                Map<String, Object> incident = new HashMap<>();
+                //String timestamp = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss").format(LocalDateTime.now());
+                //incident.put("timestamp", timestamp); //PANA VERSION
+                incident.put("timestamp", Timestamp.now());
+                incident.put("longitude", x);
+                incident.put("latitude", y);
+                incident.put("type", category);
+                incident.put("comment", comm);
+                //incident.put("image",null);
+
+                db.collection("incidents").add(incident)
+                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            @Override
+                            public void onSuccess(DocumentReference documentReference) {
+                                Log.d(TAG, "Incident successfully written!");
+                                Toast.makeText(SubmitIncident.this, "Incident successfully reported",
+                                        Toast.LENGTH_SHORT).show();
+                                uploadFile(documentReference.getId().toString());
+                                Intent intent = new Intent(SubmitIncident.this, UserPage.class);
+                                startActivity(intent);
+                                finish();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error writing document", e);
+                                Toast.makeText(SubmitIncident.this, "An error occurred, please retry.",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
+        }
+        else
         {
-            Double x = Double.parseDouble(longitude.getText().toString());
-            Double y = Double.parseDouble(latitude.getText().toString());
-            //convert to cartesian coordinates
-           // Double lonRad = Math.PI * x / 180;
-           // Double latRad = Math.PI * y / 180;
-            // x = 6371 * Math.cos(latRad) * Math.cos(lonRad);
-           // y = 6371 * Math.cos(latRad) * Math.sin(lonRad);
-            String comm = comment.getText().toString();
-            //category
-
-            Map<String,Object> incident = new HashMap<>();
-            //String timestamp = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss").format(LocalDateTime.now());
-            //incident.put("timestamp", timestamp); //PANA VERSION
-            incident.put("timestamp",Timestamp.now());
-            incident.put("longitude",x);
-            incident.put("latitude",y);
-            incident.put("type",category);
-            incident.put("comment",comm);
-            //incident.put("image",null);
-
-            db.collection("incidents").add(incident)
-                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                        @Override
-                        public void onSuccess(DocumentReference documentReference) {
-                            Log.d(TAG, "Incident successfully written!");
-                            Toast.makeText(SubmitIncident.this, "Incident successfully reported",
-                                    Toast.LENGTH_SHORT).show();
-                            uploadFile(documentReference.getId().toString());
-                            Intent intent = new Intent(SubmitIncident.this,UserPage.class);
-                            startActivity(intent);
-                            finish();
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "Error writing document", e);
-                            Toast.makeText(SubmitIncident.this, "An error occurred, please retry.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    });
+            Toast.makeText(SubmitIncident.this, "Please check internet connection and GPS.",
+                    Toast.LENGTH_SHORT).show();
         }
 
     }
