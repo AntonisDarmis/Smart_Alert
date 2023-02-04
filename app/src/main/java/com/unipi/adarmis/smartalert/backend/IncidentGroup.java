@@ -1,5 +1,6 @@
 package com.unipi.adarmis.smartalert.backend;
 
+import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;

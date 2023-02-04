@@ -1,8 +1,11 @@
 package com.unipi.adarmis.smartalert;
 
+import static android.content.ContentValues.TAG;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,14 +32,20 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.auth.User;
 
 public class UserPage extends AppCompatActivity implements View.OnClickListener, LocationListener {
@@ -44,6 +53,8 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
     LocationManager locationManager;
     Thread triggerService;
     Double longitude,latitude;
+
+    TextView earthquakeCounter, fireCounter, typhoonCounter, floodCounter, tsunamiCounter;
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -63,6 +74,33 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
         super.onStart();
         //addLocationListener();
 
+        db.collection("statistics").document("statistics")
+                .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                        if(error!=null) {
+                            Log.w(TAG, "Statistics listen failed.", error);
+                        } else {
+                            if(value.exists()) {
+                                Toast.makeText(UserPage.this,"Fetched statistics",Toast.LENGTH_SHORT).show();
+                                earthquakeCounter.setText(String.valueOf(value.getDouble("Earthquake").intValue()));
+                                fireCounter.setText(String.valueOf(value.getDouble("Fire").intValue()));
+                                typhoonCounter.setText(String.valueOf(value.getDouble("Typhoon").intValue()));
+                                floodCounter.setText(String.valueOf(value.getDouble("Flood").intValue()));
+                                tsunamiCounter.setText(String.valueOf(value.getDouble("Tsunami").intValue()));
+                            } else {
+                                Log.d("STATISTICS","Statistics not found");
+                                Toast.makeText(UserPage.this,"Unable to fetch statistics",Toast.LENGTH_SHORT).show();
+                                earthquakeCounter.setText("Failed");
+                                fireCounter.setText("Failed");
+                                typhoonCounter.setText("Failed");
+                                floodCounter.setText("Failed");
+                                tsunamiCounter.setText("Failed");
+                            }
+                        }
+                    }
+                });
+
     }
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -76,6 +114,12 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
         {
             requestGPSPermission();
         } */
+
+        earthquakeCounter = findViewById(R.id.earthquakeCounter);
+        fireCounter = findViewById(R.id.fireCounter);
+        typhoonCounter = findViewById(R.id.typhoonCounter);
+        floodCounter = findViewById(R.id.floodCounter);
+        tsunamiCounter = findViewById(R.id.tsunamiCounter);
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();

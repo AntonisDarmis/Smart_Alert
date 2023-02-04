@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,15 +23,21 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firestore.v1.WriteResult;
 import com.unipi.adarmis.smartalert.backend.IncidentGroup;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class IncidentDetails extends AppCompatActivity {
@@ -59,7 +66,14 @@ public class IncidentDetails extends AppCompatActivity {
         detailsNumber = findViewById(R.id.detailsNumberTextview);
         detailsNumber.setText(String.valueOf(group.getNumberOfReports()));
         detailsLocation = findViewById(R.id.detailsLocationTextview);
-        detailsLocation.setText(group.getCenterFormat());
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            String address= geocoder.getFromLocation(group.getCenter().getLatitude(),group.getCenter().getLongitude(),1).get(0).getLocality();
+            detailsLocation.setText(address);
+        } catch (IOException e) {
+            //throw new RuntimeException(e);
+            detailsLocation.setText(group.getCenterFormat());
+        }
         detailsDate = findViewById(R.id.detailsDateTextview);
         detailsDate.setText(group.getDateFormat());
 
@@ -79,10 +93,30 @@ public class IncidentDetails extends AppCompatActivity {
         notifyUsersButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                updateStatistics(group.getType());
                 searchAndNotifyUsers();
                 //notifyUsers("https://fcm.googleapis.com/fcm/send");
             }
         });
+    }
+
+    private void updateStatistics(String type) {
+        DocumentReference docRef = db.collection("statistics").document("statistics");
+
+        docRef.update(type, FieldValue.increment(1))
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if(task.isSuccessful()) {
+                            Toast.makeText(IncidentDetails.this,"Statistics updated!",Toast.LENGTH_SHORT).show();
+                            Log.d("STATISTICS","Successfully updated statistics");
+                        } else {
+                            Log.d("STATISTICS","Updating statistics failed");
+                            Toast.makeText(IncidentDetails.this,"Statistics update failed!",Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
     }
 
     private void searchAndNotifyUsers() {
@@ -105,11 +139,11 @@ public class IncidentDetails extends AppCompatActivity {
 
                                 double distance = centerLoc.distanceTo(userLoc);
                                 if(distance <= radiusMap.get(group.getType())) {
-                                    Log.d("NOTIFYUSER","INSIDE DISTANCE CHECK");
                                     String token = documentSnapshot.getString("token");
                                     mRequestQueue.add(notifyUsers(url,token,distance));
                                 }
                             }
+                            Toast.makeText(IncidentDetails.this,"Sent notification to users!",Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(IncidentDetails.this,"Sending notification failed",Toast.LENGTH_SHORT).show();
                         }
