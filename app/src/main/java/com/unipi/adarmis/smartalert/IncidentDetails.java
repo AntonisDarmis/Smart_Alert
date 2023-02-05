@@ -70,7 +70,8 @@ public class IncidentDetails extends AppCompatActivity {
         try {
             String address= geocoder.getFromLocation(group.getCenter().getLatitude(),group.getCenter().getLongitude(),1).get(0).getLocality();
             detailsLocation.setText(address);
-        } catch (IOException e) {
+        } catch (Exception e) {
+            Log.e("GEOCODER",e.getMessage());
             //throw new RuntimeException(e);
             detailsLocation.setText(group.getCenterFormat());
         }

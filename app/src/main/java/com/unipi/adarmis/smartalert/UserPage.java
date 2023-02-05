@@ -47,6 +47,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.auth.User;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class UserPage extends AppCompatActivity implements View.OnClickListener, LocationListener {
     Button submitButton, signOutButton;
@@ -132,6 +133,8 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
         permissionsTricky();
         //starServiceFunc();
 
+        updateToken();
+
         submitButton = findViewById(R.id.submitButton);
         submitButton.setOnClickListener(this);
 
@@ -170,6 +173,37 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
                     // TODO: Inform user that that your app will not show notifications.
                 }
             });
+
+    private void updateToken() {
+
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if(task.isSuccessful()) {
+                            String device_token = task.getResult();
+                            DocumentReference docRef = db.collection("users").document(cur_uid);
+                            docRef.update("token",device_token)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if(task.isSuccessful()) {
+                                                Log.d("TOKENUPDATE","Updated user token.");
+                                            } else {
+                                                Log.d("TOKENUPDATE","Token update failed.");
+                                                //Toast.makeText(UserPage.this,"User info update failed. Notifications may not work! Please try logging in and out again or check your internet connection!",Toast.LENGTH_LONG).show();
+                                            }
+                                        }
+                                    });
+                        } else {
+                            Log.d("TOKENUDPATE","Failed to get token");
+                            //Toast.makeText(UserPage.this,"User info update failed. Notifications may not work! Please try logging in and out again or check your internet connection!",Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+
+    }
 
     private void askNotificationPermission() {
         // This is only necessary for API level >= 33 (TIRAMISU)

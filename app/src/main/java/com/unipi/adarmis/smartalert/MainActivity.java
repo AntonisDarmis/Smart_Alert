@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -95,6 +96,55 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful())
+                    {
+                        Log.d("GPS STATE ON COMPLETE",String.valueOf(gps_enabled));
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists())
+                        {
+                            Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                            if (Objects.requireNonNull(document.get("role")).toString().equals("ADMIN")) {
+                                if(network_enabled)
+                                {
+                                    Intent intent = new Intent(MainActivity.this, Incidents.class);
+                                    startActivity(intent);
+                                    finish();
+                                }
+                                else
+                                {
+                                    Toast.makeText(MainActivity.this, "Please check internet connection!",
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            }
+                            else if (Objects.requireNonNull(document.get("role")).toString().equals("USER")) {
+                                if(network_enabled && gps_enabled) {
+                                    Intent intent = new Intent(MainActivity.this, UserPage.class);
+                                    startActivity(intent);
+                                    finish();
+                                }
+                                else
+                                {
+                                    Toast.makeText(MainActivity.this, "Please check if internet connection and GPS are enabled!",
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        }
+                        else {
+                            Log.d(TAG, "No such document");
+                        }
+                    } else {
+                        Log.d(TAG, "get failed with ", task.getException());
+                    }
+                }
+            });
+
+
+
+            /*
+            DocumentReference docRef = db.collection("users").document(cur_uid);
+            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
                         if (document.exists()) {
@@ -119,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Log.d(TAG, "get failed with ", task.getException());
                     }
                 }
-            });
+            }); */
 
         }
         else

@@ -206,8 +206,13 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
 
                     TextView loc_tv= new TextView(this);
                     Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-                    String address= geocoder.getFromLocation(g.getCenter().getLatitude(),g.getCenter().getLongitude(),1).get(0).getLocality();
-                    loc_tv.setText(address);
+                    try {
+                        String address= geocoder.getFromLocation(g.getCenter().getLatitude(),g.getCenter().getLongitude(),1).get(0).getLocality();
+                        loc_tv.setText(address);
+                    } catch (Exception e) {
+                        Log.e("GEOCODER",e.getMessage());
+                        loc_tv.setText(g.getCenterFormat());
+                    }
                     loc_tv.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.WRAP_CONTENT,1.0f));
 
                     TextView danger_tv = new TextView(this);
