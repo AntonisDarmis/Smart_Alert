@@ -16,7 +16,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
-            android:text="Date"
+            android:text="@string/date"
             android:textColor="@android:color/black"
             android:textSize="20sp" />
 
@@ -32,7 +32,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
-            android:text="Delete report"
+            android:text="@string/delete_report"
             />
     </LinearLayout>
 

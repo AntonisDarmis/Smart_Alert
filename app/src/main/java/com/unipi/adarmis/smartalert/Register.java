@@ -64,12 +64,12 @@ public class Register extends AppCompatActivity  {
                 String password = String.valueOf(editPassword.getText());
                 if(TextUtils.isEmpty(email))
                 {
-                    Toast.makeText(Register.this,"Email is required!",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Register.this, getApplicationContext().getString(R.string.email_is_required),Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if(TextUtils.isEmpty(password) || email.length() <= 6 )
                 {
-                    Toast.makeText(Register.this,"Password is required and must be at least 6 characters long!",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Register.this, getApplicationContext().getString(R.string.password_6_chars),Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -109,7 +109,7 @@ public class Register extends AppCompatActivity  {
                                                 @Override
                                                 public void onSuccess(Void aVoid) {
                                                     Log.d(TAG, "DocumentSnapshot successfully written!");
-                                                    Toast.makeText(Register.this, "Account created successfully",
+                                                    Toast.makeText(Register.this, getApplicationContext().getString(R.string.account_created_successfully),
                                                             Toast.LENGTH_SHORT).show();
                                                     Intent intent = new Intent(Register.this,MainActivity.class);
                                                     startActivity(intent);
@@ -120,14 +120,14 @@ public class Register extends AppCompatActivity  {
                                                 @Override
                                                 public void onFailure(@NonNull Exception e) {
                                                     Log.w(TAG, "Error writing document", e);
-                                                    Toast.makeText(Register.this, "An error occurred, please retry.",
+                                                    Toast.makeText(Register.this, getApplicationContext().getString(R.string.an_error_occurred_please_retry),
                                                             Toast.LENGTH_SHORT).show();
                                                 }
                                             });
                                 } else {
                                     // If sign in fails, display a message to the user.
                                     Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                                    Toast.makeText(Register.this, "Account creation failed.",
+                                    Toast.makeText(Register.this, getApplicationContext().getString(R.string.account_creation_failed),
                                             Toast.LENGTH_SHORT).show();
 
                                 }

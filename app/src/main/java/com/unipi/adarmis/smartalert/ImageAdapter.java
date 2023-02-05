@@ -106,12 +106,12 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if(task.isSuccessful()) {
-                            Toast.makeText(mContext, "Successfully deleted report",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mContext, mContext.getString(R.string.success_delete_report) ,Toast.LENGTH_SHORT).show();
                             Intent intent  = new Intent(mContext,Incidents.class);
                             mContext.startActivity(intent);
                             ((Activity) mContext).finish();
                         } else {
-                            Toast.makeText(mContext, "Delete failed",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mContext, mContext.getString(R.string.fail_delete_report),Toast.LENGTH_SHORT).show();
                             Log.d("DELETE_INCIDENT","Delete failed");
                             //Intent intent  = new Intent(mContext,Incidents.class);
                             //mContext.startActivity(intent);

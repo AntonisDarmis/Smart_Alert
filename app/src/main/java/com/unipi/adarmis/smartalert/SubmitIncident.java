@@ -157,7 +157,7 @@ public class SubmitIncident extends AppCompatActivity implements View.OnClickLis
                             @Override
                             public void onSuccess(DocumentReference documentReference) {
                                 Log.d(TAG, "Incident successfully written!");
-                                Toast.makeText(SubmitIncident.this, "Incident successfully reported",
+                                Toast.makeText(SubmitIncident.this, getApplicationContext().getString(R.string.incident_successfully_reported),
                                         Toast.LENGTH_SHORT).show();
                                 uploadFile(documentReference.getId().toString());
                                 Intent intent = new Intent(SubmitIncident.this, UserPage.class);
@@ -169,7 +169,7 @@ public class SubmitIncident extends AppCompatActivity implements View.OnClickLis
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 Log.w(TAG, "Error writing document", e);
-                                Toast.makeText(SubmitIncident.this, "An error occurred, please retry.",
+                                Toast.makeText(SubmitIncident.this, getApplicationContext().getString(R.string.an_error_occurred_please_retry),
                                         Toast.LENGTH_SHORT).show();
                             }
                         });
@@ -177,7 +177,7 @@ public class SubmitIncident extends AppCompatActivity implements View.OnClickLis
         }
         else
         {
-            Toast.makeText(SubmitIncident.this, "Please check internet connection and GPS.",
+            Toast.makeText(SubmitIncident.this, getApplicationContext().getString(R.string.check_internet_and_gps),
                     Toast.LENGTH_SHORT).show();
         }
 
@@ -196,13 +196,13 @@ public class SubmitIncident extends AppCompatActivity implements View.OnClickLis
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Toast.makeText(SubmitIncident.this,"Image uploaded.",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SubmitIncident.this, getApplicationContext().getString(R.string.image_uploaded),Toast.LENGTH_SHORT).show();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(SubmitIncident.this,"Image upload failed.",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SubmitIncident.this, getApplicationContext().getString(R.string.image_upload_failed),Toast.LENGTH_SHORT).show();
                         }
                     })
                     .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {

@@ -109,11 +109,11 @@ public class IncidentDetails extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if(task.isSuccessful()) {
-                            Toast.makeText(IncidentDetails.this,"Statistics updated!",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(IncidentDetails.this, getApplicationContext().getString(R.string.statistics_updated),Toast.LENGTH_SHORT).show();
                             Log.d("STATISTICS","Successfully updated statistics");
                         } else {
                             Log.d("STATISTICS","Updating statistics failed");
-                            Toast.makeText(IncidentDetails.this,"Statistics update failed!",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(IncidentDetails.this,getApplicationContext().getString(R.string.statistics_update_failed),Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -144,9 +144,9 @@ public class IncidentDetails extends AppCompatActivity {
                                     mRequestQueue.add(notifyUsers(url,token,distance));
                                 }
                             }
-                            Toast.makeText(IncidentDetails.this,"Sent notification to users!",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(IncidentDetails.this, getApplicationContext().getString(R.string.notification_sent),Toast.LENGTH_SHORT).show();
                         } else {
-                            Toast.makeText(IncidentDetails.this,"Sending notification failed",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(IncidentDetails.this, getApplicationContext().getString(R.string.send_notification_failed),Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

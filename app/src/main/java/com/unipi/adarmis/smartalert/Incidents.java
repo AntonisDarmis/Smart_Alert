@@ -105,7 +105,7 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
                                     }
                                 }
                             }
-                            Toast.makeText(Incidents.this,"New incident uploaded, retrieving changes...",Toast.LENGTH_LONG).show();
+                            Toast.makeText(Incidents.this, getApplicationContext().getString(R.string.retrieving_changes),Toast.LENGTH_LONG).show();
                             clearTable();
                             groups = Ranking.rank(points,radiusMap.get(category));
                             try {
@@ -168,7 +168,7 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
                                 throw new RuntimeException(e);
                             }
                         } else {
-                            Toast.makeText(Incidents.this,"No incidents fetched.",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Incidents.this, getApplicationContext().getString(R.string.no_incidents_fetched),Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -241,7 +241,7 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
 
         else
         {
-            Toast.makeText(Incidents.this,"No incidents available for selected category.",Toast.LENGTH_SHORT).show();
+            Toast.makeText(Incidents.this, getApplicationContext().getString(R.string.no_incidents_available_for_category),Toast.LENGTH_SHORT).show();
         }
     }
 

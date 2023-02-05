@@ -83,7 +83,7 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
                             Log.w(TAG, "Statistics listen failed.", error);
                         } else {
                             if(value.exists()) {
-                                Toast.makeText(UserPage.this,"Fetched statistics",Toast.LENGTH_SHORT).show();
+                                Toast.makeText(UserPage.this, getApplicationContext().getString(R.string.fetched_statistics),Toast.LENGTH_SHORT).show();
                                 earthquakeCounter.setText(String.valueOf(value.getDouble("Earthquake").intValue()));
                                 fireCounter.setText(String.valueOf(value.getDouble("Fire").intValue()));
                                 typhoonCounter.setText(String.valueOf(value.getDouble("Typhoon").intValue()));
@@ -91,12 +91,12 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
                                 tsunamiCounter.setText(String.valueOf(value.getDouble("Tsunami").intValue()));
                             } else {
                                 Log.d("STATISTICS","Statistics not found");
-                                Toast.makeText(UserPage.this,"Unable to fetch statistics",Toast.LENGTH_SHORT).show();
-                                earthquakeCounter.setText("Failed");
-                                fireCounter.setText("Failed");
-                                typhoonCounter.setText("Failed");
-                                floodCounter.setText("Failed");
-                                tsunamiCounter.setText("Failed");
+                                Toast.makeText(UserPage.this, getApplicationContext().getString(R.string.unable_to_fetch_statistics),Toast.LENGTH_SHORT).show();
+                                earthquakeCounter.setText(getApplicationContext().getString(R.string.failed));
+                                fireCounter.setText(getApplicationContext().getString(R.string.failed));
+                                typhoonCounter.setText(getApplicationContext().getString(R.string.failed));
+                                floodCounter.setText(getApplicationContext().getString(R.string.failed));
+                                tsunamiCounter.setText(getApplicationContext().getString(R.string.failed));
                             }
                         }
                     }
@@ -241,7 +241,7 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(UserPage.this,"Failed",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(UserPage.this,getApplicationContext().getString(R.string.failed),Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -255,7 +255,7 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(UserPage.this,"Failed",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(UserPage.this,getApplicationContext().getString(R.string.failed),Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -338,9 +338,9 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
         mServiceIntent.putExtra("uid",cur_uid);
         if (!Util.isMyServiceRunning(mLocationService.getClass(), this)) {
             startService(mServiceIntent);
-            Toast.makeText(this, "Started service", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getApplicationContext().getString(R.string.started_location_service), Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "Service already running", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getApplicationContext().getString(R.string.service_already_running), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -360,10 +360,10 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
         mServiceIntent = new Intent(this, mLocationService.getClass());
         if (Util.isMyServiceRunning(mLocationService.getClass(), this)) {
             stopService(mServiceIntent);
-            Toast.makeText(this, "Service stopped!!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getApplicationContext().getString(R.string.service_stopped), Toast.LENGTH_SHORT).show();
             //saveLocation(); // explore it by your self
         } else {
-            Toast.makeText(this, "Service is already stopped!!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getApplicationContext().getString(R.string.service_already_stopped), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -385,7 +385,7 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        Toast.makeText(this, Integer.toString(requestCode), Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, Integer.toString(requestCode), Toast.LENGTH_LONG).show();
 
         if ( requestCode == MY_FINE_LOCATION_REQUEST){
 
@@ -396,7 +396,7 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
                 }
 
             } else {
-                Toast.makeText(this, "ACCESS_FINE_LOCATION permission denied", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, getApplicationContext().getString(R.string.fine_location_denied), Toast.LENGTH_LONG).show();
                 if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                  /*   startActivity(
                             Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -415,10 +415,10 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
             if (grantResults.length!=0 /*grantResults.isNotEmpty()*/ && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                         == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "Background location Permission Granted", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, getApplicationContext().getString(R.string.background_location_permission_granted), Toast.LENGTH_LONG).show();
                 }
             } else {
-                Toast.makeText(this, "Background location permission denied", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, getApplicationContext().getString(R.string.background_location_permission_denied), Toast.LENGTH_LONG).show();
             }
             return;
         }

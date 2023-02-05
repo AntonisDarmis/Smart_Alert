@@ -94,7 +94,7 @@ public class GroupImages extends AppCompatActivity {
                                 mRecyclerView.setAdapter(mAdapter);
                             } else {
                                 if(pointCounter==group.getIncidents().size() && counter==0) {
-                                    Toast.makeText(GroupImages.this,"No images found for this event.",Toast.LENGTH_LONG).show();
+                                    Toast.makeText(GroupImages.this, getApplicationContext().getString(R.string.no_img_found),Toast.LENGTH_LONG).show();
                                     finish();
                                 }
                             }

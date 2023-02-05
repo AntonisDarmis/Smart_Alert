@@ -9,9 +9,9 @@
 
     <TextView
         android:id="@+id/textView8"
-        android:layout_width="157dp"
+        android:layout_width="155dp"
         android:layout_height="26dp"
-        android:text="Recent incidents for:"
+        android:text="@string/recent_incidents"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -46,7 +46,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/border"
                     android:padding="3dip"
-                    android:text="Type"
+                    android:text="@string/type"
                     android:layout_weight="1"
                     android:textStyle="bold"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
@@ -59,7 +59,7 @@
                     android:gravity="left"
                     android:padding="3dip"
                     android:layout_weight="1"
-                    android:text="Date"
+                    android:text="@string/date"
                     android:textStyle="bold"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
@@ -71,7 +71,7 @@
                     android:gravity="left"
                     android:padding="3dip"
                     android:layout_weight="1"
-                    android:text="Location"
+                    android:text="@string/location2"
                     android:textStyle="bold"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
@@ -83,7 +83,7 @@
                     android:gravity="left"
                     android:padding="3dip"
                     android:layout_weight="1"
-                    android:text="Danger score"
+                    android:text="@string/danger_score"
                     android:textStyle="bold"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
             </TableRow>

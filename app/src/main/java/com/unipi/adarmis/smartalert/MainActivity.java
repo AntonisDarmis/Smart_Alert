@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 }
                                 else
                                 {
-                                    Toast.makeText(MainActivity.this, "Please check internet connection!",
+                                    Toast.makeText(MainActivity.this, getApplicationContext().getString(R.string.check_internet_connection),
                                             Toast.LENGTH_LONG).show();
                                 }
                             }
@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 }
                                 else
                                 {
-                                    Toast.makeText(MainActivity.this, "Please check if internet connection and GPS are enabled!",
+                                    Toast.makeText(MainActivity.this, getApplicationContext().getString(R.string.check_internet_and_gps),
                                             Toast.LENGTH_LONG).show();
                                 }
                             }
@@ -230,9 +230,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
         } catch(Exception ex) {}
         if (username.equals("")) {
-            Toast.makeText(this, "Username is required!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getApplicationContext().getString(R.string.username_is_required), Toast.LENGTH_SHORT).show();
         } else if (password.equals("")) {
-            Toast.makeText(this, "Password is required!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getApplicationContext().getString(R.string.password_is_required), Toast.LENGTH_SHORT).show();
         } else {
                 mAuth.signInWithEmailAndPassword(username, password)
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -262,7 +262,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                                     }
                                                     else
                                                     {
-                                                        Toast.makeText(MainActivity.this, "Please check internet connection!",
+                                                        Toast.makeText(MainActivity.this, getApplicationContext().getString(R.string.please_check_internet),
                                                                 Toast.LENGTH_LONG).show();
                                                     }
                                                 }
@@ -274,7 +274,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                                     }
                                                     else
                                                     {
-                                                        Toast.makeText(MainActivity.this, "Please check if internet connection and GPS are enabled!",
+                                                        Toast.makeText(MainActivity.this, getApplicationContext().getString(R.string.check_internet_and_gps),
                                                                 Toast.LENGTH_LONG).show();
                                                     }
                                                 }
@@ -291,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             } else {
                                 // If sign in fails, display a message to the user.
                                 Log.w(TAG, "signIn:failure", task.getException());
-                                Toast.makeText(MainActivity.this, "Authentication failed.",
+                                Toast.makeText(MainActivity.this, getApplicationContext().getString(R.string.authentication_failed),
                                         Toast.LENGTH_SHORT).show();
                                 //updateUI(null);
                             }
