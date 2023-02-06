@@ -143,6 +143,7 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
             @Override
             public void onClick(View v) {
                 stopServiceFunc();
+                deleteToken();
                 FirebaseAuth.getInstance().signOut();
                 Intent intent = new Intent(UserPage.this,MainActivity.class);
                 startActivity(intent);
@@ -173,6 +174,22 @@ public class UserPage extends AppCompatActivity implements View.OnClickListener,
                     // TODO: Inform user that that your app will not show notifications.
                 }
             });
+
+
+    private void deleteToken() {
+        DocumentReference docRef = db.collection("users").document(cur_uid);
+        docRef.update("token","x")
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if(task.isSuccessful()) {
+                            Log.d("TOKENUPDATE","Deleted user token.");
+                        } else {
+                            Log.d("TOKENUPDATE","Failed to delete user token.");
+                        }
+                    }
+                });
+    }
 
     private void updateToken() {
 

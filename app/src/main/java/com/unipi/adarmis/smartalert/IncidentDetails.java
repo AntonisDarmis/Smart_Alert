@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
@@ -37,6 +38,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -67,12 +69,22 @@ public class IncidentDetails extends AppCompatActivity {
         detailsNumber.setText(String.valueOf(group.getNumberOfReports()));
         detailsLocation = findViewById(R.id.detailsLocationTextview);
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+
+        List<Address> adds = null;
         try {
-            String address= geocoder.getFromLocation(group.getCenter().getLatitude(),group.getCenter().getLongitude(),1).get(0).getLocality();
-            detailsLocation.setText(address);
-        } catch (Exception e) {
+            adds = geocoder.getFromLocation(group.getCenter().getLatitude(),group.getCenter().getLongitude(),1);
+        } catch (IOException e) {
             Log.e("GEOCODER",e.getMessage());
             //throw new RuntimeException(e);
+        }
+        if (adds!=null & adds.size()>0) {
+            String address= adds.get(0).getLocality();
+            if(address!=null) {
+                detailsLocation.setText(address);
+            } else {
+                detailsLocation.setText(group.getCenterFormat());
+            }
+        } else {
             detailsLocation.setText(group.getCenterFormat());
         }
         detailsDate = findViewById(R.id.detailsDateTextview);
@@ -141,7 +153,11 @@ public class IncidentDetails extends AppCompatActivity {
                                 double distance = centerLoc.distanceTo(userLoc);
                                 if(distance <= radiusMap.get(group.getType())) {
                                     String token = documentSnapshot.getString("token");
-                                    mRequestQueue.add(notifyUsers(url,token,distance));
+                                    if(!token.equals("x")) {
+                                        mRequestQueue.add(notifyUsers(url,token,distance));
+                                    } else {
+                                        Log.d("NOTIFY","User in radius but not logged in anywhere");
+                                    }
                                 }
                             }
                             Toast.makeText(IncidentDetails.this, getApplicationContext().getString(R.string.notification_sent),Toast.LENGTH_SHORT).show();

@@ -25,8 +25,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.common.collect.Table;
-import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -39,11 +37,8 @@ import com.unipi.adarmis.smartalert.backend.Ranking;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -206,11 +201,15 @@ public class Incidents extends AppCompatActivity implements AdapterView.OnItemSe
 
                     TextView loc_tv= new TextView(this);
                     Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-                    try {
-                        String address= geocoder.getFromLocation(g.getCenter().getLatitude(),g.getCenter().getLongitude(),1).get(0).getLocality();
-                        loc_tv.setText(address);
-                    } catch (Exception e) {
-                        Log.e("GEOCODER",e.getMessage());
+                    List<Address> adds = geocoder.getFromLocation(g.getCenter().getLatitude(),g.getCenter().getLongitude(),1);
+                    if (adds.size()>0) {
+                        String address= adds.get(0).getLocality();
+                        if(address!=null) {
+                            loc_tv.setText(address);
+                        } else {
+                            loc_tv.setText(g.getCenterFormat());
+                        }
+                    } else {
                         loc_tv.setText(g.getCenterFormat());
                     }
                     loc_tv.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.WRAP_CONTENT,1.0f));
