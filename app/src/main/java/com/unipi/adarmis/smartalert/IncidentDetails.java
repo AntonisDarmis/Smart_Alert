@@ -53,7 +53,7 @@ public class IncidentDetails extends AppCompatActivity {
     private Map<String,Integer> radiusMap = Map.of("Earthquake",20000,"Typhoon",10000,"Flood",8000,"Fire",10000,"Tsunami",20000);
 
     //BAD IDEA TO PUSH THIS TO GITHUB
-    private String API_KEY = "AAAAFfz7fBg:APA91bHaP_UYoWvEPMpBIVLHDIuPD57fI9TNNCtdthixb8qlhgmRXt1VwsDUzefj7JsiUC3Oedr_ECWo-ovLN5DDo6BuAnmMpnkNXfuM3Hb2UUUfTy0c8GH5XimIy9Kb1t3c6Fhek4tE";
+    private String API_KEY = "";
     private String url = "https://fcm.googleapis.com/fcm/send";
 
     @Override
