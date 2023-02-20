@@ -55,6 +55,8 @@ public class IncidentDetails extends AppCompatActivity {
     private FirebaseFirestore db;
     IncidentGroup group;
 
+    private Map<String,String> translate = Map.of("Earthquake","σεισμός","Fire","φωτιά","Typhoon","τυφώνας","Tsunami","τσουνάμι","Flood","πλήμμυρα");
+
     private Map<String,Integer> radiusMap = Map.of("Earthquake",20000,"Typhoon",10000,"Flood",8000,"Fire",10000,"Tsunami",20000);
 
     //BAD IDEA TO PUSH THIS TO GITHUB
@@ -194,7 +196,7 @@ public class IncidentDetails extends AppCompatActivity {
             }
 
             @SuppressLint("DefaultLocale")
-            String message = "Υπάρχει "+group.getType()+" σε απόσταση "+ format("%.02f",distance)+"m από εσάς! \n Κινηθείτε με προσοχή!";
+            String message = "Υπάρχει "+translate.get(group.getType())+" σε απόσταση "+ format("%.02f",distance)+"m από εσάς! \n Κινηθείτε με προσοχή!";
 
             @Override
             public byte[] getBody() throws AuthFailureError {
