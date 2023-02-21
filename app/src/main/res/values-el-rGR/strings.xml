@@ -26,12 +26,12 @@
     <string name="register_now">Εγγραφή τώρα!</string>
     <string name="register_new_account">Εγγραφή νέου προφίλ</string>
     <string name="register">Εγγραφή</string>
-    <string name="submit_new_incident">Υποβολη νεου περιστατικου</string>
+    <string name="submit_new_incident">Υποβολή νέου περιστατικού</string>
     <string name="submit_incident">Υποβολή</string>
     <string name="longitude">Μήκος</string>
     <string name="latitude">Πλάτος</string>
     <string name="comment">Σχόλιο</string>
-    <string name="incident_type">Κατηγορία περιστατικού</string>
+    <string name="incident_type">Κατηγορία</string>
     <string name="add_comments_here">Εισάγετε σχόλια εδώ</string>
     <string name="image_path">Εικόνα</string>
     <string name="select_image">Επιλογή Εικόνας</string>

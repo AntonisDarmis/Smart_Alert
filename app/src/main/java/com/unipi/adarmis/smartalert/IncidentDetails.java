@@ -205,7 +205,7 @@ public class IncidentDetails extends AppCompatActivity {
                     jsonObject.put("to", targetToken);
 
                     JSONObject data = new JSONObject();
-                    data.put("title", "ΠΡΟΣΟΧΗ: "+group.getType());
+                    data.put("title", "ΠΡΟΣΟΧΗ: "+translate.get(group.getType()));
                     data.put("content", message);
 
                     jsonObject.put("data", data);

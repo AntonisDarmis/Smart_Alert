@@ -149,7 +149,7 @@ public class IncidentGroup implements Parcelable {
     public IncidentGroup(Parcel p) throws ParseException {
         this.type = p.readString();
         this.dangerScore = p.readInt();
-        this.earliestDate = new SimpleDateFormat("E MMM dd HH:mm:ss z yyyy").parse(p.readString());
+        this.earliestDate = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy").parse(p.readString());
         Double longitude = p.readDouble();
         Double latitude = p.readDouble();
         Location center = new Location("");
